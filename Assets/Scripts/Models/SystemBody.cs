@@ -1,18 +1,37 @@
+using System;
+using UnityEngine;
+
 namespace SpaceRTS.Models
 {
         public class SystemBody : SelectableObject
         {
-                public float Radius
+                public float MaxRadius
                 {
                         get
                         {
-                                if (this.transform.lossyScale.x > this.transform.lossyScale.z)
+                                float maxRadius = this.transform.lossyScale.z;
+                                if (this.transform.lossyScale.y > this.transform.lossyScale.z)
                                 {
-                                        return this.transform.lossyScale.x * 0.5f;
+                                        maxRadius = this.transform.lossyScale.y;
                                 }
 
-                                return this.transform.lossyScale.z * 0.5f;
+                                if (this.transform.lossyScale.x > maxRadius)
+                                {
+                                        maxRadius = this.transform.lossyScale.x;
+                                }
+
+                                return maxRadius;
                         }
+                }
+
+                public void SetBodySize(float x, float y, float z)
+                {
+                        this.SetBodySize(new Vector3(x , y, z));
+                }
+
+                public void SetBodySize(Vector3 scale)
+                {
+                        this.transform.localScale = scale;
                 }
         }
 }

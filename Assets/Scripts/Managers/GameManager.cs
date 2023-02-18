@@ -1,4 +1,4 @@
-using SpaceRTS.Spawners;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -6,24 +6,30 @@ namespace SpaceRTS.Managers
 {
         public class GameManager : MonoBehaviour
         {
-                public static bool isPaused = false;
-                public int numPlanets = 5;
+                public bool isPaused = false;
+
+                private GameSpeed gameSpeed;
+                private Dictionary<KeyCode, GameSpeed> gameSpeeds = new Dictionary<KeyCode, GameSpeed>()
+                {
+                        { KeyCode.Alpha1, GameSpeed.x1 },
+                        { KeyCode.Alpha2, GameSpeed.x2 },
+                        { KeyCode.Alpha3, GameSpeed.x5 },
+                        { KeyCode.Alpha4, GameSpeed.x10 }
+                };
 
                 public Canvas UI;
                 private TextMeshProUGUI textMesh;
-                private PlanetSpawner planetSpawner;
 
-                public GameObject sunPrefab;
+                public SystemManager systemManager;
 
                 private void Awake()
                 {
                         this.textMesh = this.UI.GetComponentInChildren<TextMeshProUGUI>();
-                        this.planetSpawner = this.GetComponent<PlanetSpawner>();
 
-                        // Instantiate the sun and planet objects
-                        GameObject sun = Instantiate(this.sunPrefab);
+                        this.SetGameSpeed(GameSpeed.x1);
 
-                        this.planetSpawner.SpawnPlanets(sun, this.numPlanets);
+                        // Instantiate the system
+                        Instantiate(this.systemManager);
 
                         // Initialize any other gameplay mechanics or systems here
                 }
@@ -35,22 +41,52 @@ namespace SpaceRTS.Managers
                         {
                                 this.TogglePause();
                         }
+
+                        foreach (KeyValuePair<KeyCode, GameSpeed> gameSpeedMapping in this.gameSpeeds)
+                        {
+                                if (Input.GetKeyDown(gameSpeedMapping.Key))
+                                {
+                                        this.SetGameSpeed(gameSpeedMapping.Value);
+                                        break;
+                                }
+                        }
+                }
+
+                private void SetGameSpeed(GameSpeed speed)
+                {
+                        this.gameSpeed = speed;
+                        if (!this.isPaused)
+                        {
+                                this.SetTimeScale(speed);
+                        }
+                }
+
+                private void SetTimeScale(GameSpeed speed)
+                {
+                        Time.timeScale = (int)speed / 5f;
+                        this.textMesh.text = speed == GameSpeed.x1
+                                ? string.Empty
+                                : speed.ToString();
                 }
 
                 private void TogglePause()
                 {
-                        isPaused = !isPaused;
+                        this.isPaused = !this.isPaused;
 
-                        if (isPaused)
-                        {
-                                Time.timeScale = 0;
-                                this.textMesh.text = "Paused";
-                        }
-                        else
-                        {
-                                Time.timeScale = 1;
-                                this.textMesh.text = string.Empty;
-                        }
+                        var speed = this.isPaused
+                                ? GameSpeed.Paused
+                                : this.gameSpeed;
+
+                        this.SetTimeScale(speed);
                 }
+        }
+
+        public enum GameSpeed
+        {
+                Paused = 0,
+                x1 = 1,
+                x2 = 2,
+                x5 = 5,
+                x10 = 10
         }
 }

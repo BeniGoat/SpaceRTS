@@ -10,7 +10,7 @@ namespace SpaceRTS.Models.Components
                 /// <summary>
                 /// Speed of rotation in degrees per second
                 /// </summary>
-                public float rotationSpeed;
+                public float degreesPerSecond;
 
                 /// <summary>
                 /// Method called every frame.
@@ -18,7 +18,7 @@ namespace SpaceRTS.Models.Components
                 private void Update()
                 {
                         // Rotate the object around its up axis
-                        this.transform.Rotate(Vector3.up, this.rotationSpeed * Time.deltaTime);
+                        this.transform.Rotate(Vector3.up, this.degreesPerSecond * Time.deltaTime);
                 }
 
                 /// <summary>
@@ -27,7 +27,7 @@ namespace SpaceRTS.Models.Components
                 /// <param name="degreesPerSecond">The rotation speed in degrees per second.</param>
                 public void SetRotationSpeed(float degreesPerSecond)
                 {
-                        this.rotationSpeed = degreesPerSecond;
+                        this.degreesPerSecond = degreesPerSecond;
                 }
         }
 }

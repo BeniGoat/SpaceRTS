@@ -243,7 +243,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1163783706}
   - component: {fileID: 1163783705}
-  - component: {fileID: 1163783707}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -263,9 +262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b28a0e59bf957e41bb606f8865623d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numPlanets: 3
   UI: {fileID: 1930065200}
-  sunPrefab: {fileID: 6365920966171356602, guid: e50a27520a684eb4fa7948abd681401f, type: 3}
+  systemManager: {fileID: 8484441316833422989, guid: 419187137ee0daf469f89e0cd1dd9e6d, type: 3}
 --- !u!4 &1163783706
 Transform:
   m_ObjectHideFlags: 0
@@ -281,20 +279,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1163783707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163783704}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e9e603716f1cb941b3b1a50d5de6448, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  planetPrefab: {fileID: 3064433435120138728, guid: 52f17fbce79852043b9aa1547a2601e1, type: 3}
-  orbitalSeparationDistance: 5
 --- !u!1 &1433112478
 GameObject:
   m_ObjectHideFlags: 0

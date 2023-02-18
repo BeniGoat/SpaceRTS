@@ -14,14 +14,14 @@ namespace SpaceRTS.Spawners
                 private readonly List<int> orbitalPositions = new List<int> { 0, 45, 90, 135, 180, 225, 270, 315 };
                 private readonly List<int> orbitalRotations= new List<int> { 90, 45, 0, 315, 270, 225, 180, 135 };
 
-                private void Awake()
+                private void Start()
                 {
                         this.sourceBody = this.GetComponentInChildren<SystemBody>();
                 }
 
                 private void Update()
                 {
-                        if (this.sourceBody.IsSelected && Input.GetKeyDown(KeyCode.B))
+                        if (this.sourceBody != null && this.sourceBody.IsSelected && Input.GetKeyDown(KeyCode.B))
                         {
                                 this.SpawnShip();
                         }
@@ -37,7 +37,7 @@ namespace SpaceRTS.Spawners
                                 int positionInOrbit = this.orbitalPositions[this.numOfShipsInOrbit];
                                 int rotationInOrbit = this.orbitalRotations[this.numOfShipsInOrbit];
                                 float angle = positionInOrbit * Mathf.Deg2Rad;
-                                float orbitalDistance = this.sourceBody.Radius * 1.25f;
+                                float orbitalDistance = this.sourceBody.MaxRadius * 1.25f;
                                 float x = orbitalDistance * Mathf.Cos(angle);
                                 float z = orbitalDistance * Mathf.Sin(angle);
 
@@ -46,6 +46,7 @@ namespace SpaceRTS.Spawners
                                 newShip.transform.rotation = this.sourceBody.transform.rotation * Quaternion.Euler(0, rotationInOrbit, 0);
 
                                 this.numOfShipsInOrbit++;
+                                Debug.Log($"Ship #{this.numOfShipsInOrbit} spawned at {this.name}");
                         }
                 }
         }
