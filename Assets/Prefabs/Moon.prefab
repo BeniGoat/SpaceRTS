@@ -10,13 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 2134500426147743924}
   - component: {fileID: 1693328060510741875}
-  - component: {fileID: 8020384180356138232}
   - component: {fileID: 6531189874010212316}
   - component: {fileID: 5197390297015289535}
-  - component: {fileID: 4380584136702298934}
-  - component: {fileID: -8026526468227089866}
+  - component: {fileID: -4488196078252135381}
+  - component: {fileID: -1242310016113094437}
   m_Layer: 0
-  m_Name: Planet
+  m_Name: Moon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,25 +135,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 1
---- !u!114 &8020384180356138232
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3064433435120138728}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5749b45546528054090bd639b774f899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moonPrefab: {fileID: -4488196078252135381, guid: 0b18cb99f2d6b5b43a9c6fece5177ffc, type: 3}
-  maxOrbitalSeparationDistance: 0.25
-  minOrbitalSeparationDistance: 0.1
-  maxNumOfMoons: 5
-  minNumOfMoons: 1
-  maxMoonSize: 0.02
-  minMoonSize: 0.1
 --- !u!114 &6531189874010212316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,7 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   degreesPerSecond: 0
---- !u!114 &4380584136702298934
+--- !u!114 &-4488196078252135381
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -190,12 +170,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3064433435120138728}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15b9a18a7d921654bb2e8bad6af1f634, type: 3}
+  m_Script: {fileID: 11500000, guid: 563ca49e456281c449be064fa7f07101, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shipPrefab: {fileID: 1191978471650237335, guid: 752f0d3cacb1e384cab476af3ebc43fc, type: 3}
-  distanceFromSurface: 0.2
---- !u!114 &-8026526468227089866
+--- !u!114 &-1242310016113094437
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

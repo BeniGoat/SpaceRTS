@@ -8,6 +8,11 @@ namespace SpaceRTS.Models.Components
         public class Rotator : MonoBehaviour
         {
                 /// <summary>
+                /// The axis of rotation
+                /// </summary>
+                private Vector3 axis;
+
+                /// <summary>
                 /// Speed of rotation in degrees per second
                 /// </summary>
                 public float degreesPerSecond;
@@ -18,15 +23,17 @@ namespace SpaceRTS.Models.Components
                 private void Update()
                 {
                         // Rotate the object around its up axis
-                        this.transform.Rotate(Vector3.up, this.degreesPerSecond * Time.deltaTime);
+                        this.transform.Rotate(this.axis, this.degreesPerSecond * Time.deltaTime);
                 }
 
                 /// <summary>
                 /// Sets the rotation speed.
                 /// </summary>
                 /// <param name="degreesPerSecond">The rotation speed in degrees per second.</param>
-                public void SetRotationSpeed(float degreesPerSecond)
+                /// <param name="axis">The axis of rotation.</param>
+                public void SetRotation(float degreesPerSecond, Vector3 axis)
                 {
+                        this.axis = axis;
                         this.degreesPerSecond = degreesPerSecond;
                 }
         }

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -3663189249271380115}
   - component: {fileID: 649478610533125699}
   m_Layer: 0
-  m_Name: Planet_Body
+  m_Name: System_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 47006657775436252}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ca422bb9c1f2474b993966be0a8af42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 0
+  degreesPerSecond: 0
 --- !u!114 &-3663189249271380115
 MonoBehaviour:
   m_ObjectHideFlags: 0

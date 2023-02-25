@@ -5,7 +5,9 @@ namespace SpaceRTS.Models
 {
         public class SystemBody : SelectableObject
         {
-                public float MaxRadius
+                public float OrbitalDistance { get; set; }
+
+                public float MaxDiameter
                 {
                         get
                         {
@@ -24,10 +26,16 @@ namespace SpaceRTS.Models
                         }
                 }
 
+                public void SetBodySize(float diameter)
+                {
+                        this.SetBodySize(diameter, diameter, diameter);
+                }
+
                 public void SetBodySize(float x, float y, float z)
                 {
                         this.SetBodySize(new Vector3(x , y, z));
                 }
+
 
                 public void SetBodySize(Vector3 scale)
                 {

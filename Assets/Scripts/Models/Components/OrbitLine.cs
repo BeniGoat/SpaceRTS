@@ -10,11 +10,11 @@ namespace SpaceRTS.Models.Components
 
                 private LineRenderer orbitalPath;
 
-                public void CreateOrbitalPathLine(float orbitalDistance, int startingPosition)
+                public void CreateOrbitalPathLine(float orbitalDistance, int startingPosition, float lineWidth)
                 {
                         this.orbitalPath = this.GetComponent<LineRenderer>();
-                        this.orbitalPath.startWidth = 0.025f;
-                        this.orbitalPath.endWidth = 0.025f;
+                        this.orbitalPath.startWidth = lineWidth;
+                        this.orbitalPath.endWidth = lineWidth * 0.5f;
                         this.orbitalPath.startColor = this.orbitLineColour;
                         this.orbitalPath.endColor = new Color(
                                 this.orbitLineColour.r,

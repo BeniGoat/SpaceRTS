@@ -12,7 +12,7 @@ namespace SpaceRTS.Models
                         this.IsSelected = !this.IsSelected;
 
                         // Perform other logic when the object is clicked
-                        Debug.Log($"{this.transform.name} clicked!");
+                        Debug.Log($"{this.transform.parent.name} clicked!");
                 }
         }
 }

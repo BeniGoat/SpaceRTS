@@ -1,13 +1,14 @@
-using SpaceRTS.Models;
 using System.Collections.Generic;
 using UnityEngine;
+using SpaceRTS.Models;
+using System;
 
 namespace SpaceRTS.Spawners
 {
         public class ShipSpawner : MonoBehaviour
         {
                 public GameObject shipPrefab;
-
+                public float distanceFromSurface;
                 private SystemBody sourceBody;
                 private int numOfShipsInOrbit;
 
@@ -37,13 +38,17 @@ namespace SpaceRTS.Spawners
                                 int positionInOrbit = this.orbitalPositions[this.numOfShipsInOrbit];
                                 int rotationInOrbit = this.orbitalRotations[this.numOfShipsInOrbit];
                                 float angle = positionInOrbit * Mathf.Deg2Rad;
-                                float orbitalDistance = this.sourceBody.MaxRadius * 1.25f;
+                                float orbitalDistance = this.sourceBody.MaxDiameter + this.distanceFromSurface;
                                 float x = orbitalDistance * Mathf.Cos(angle);
                                 float z = orbitalDistance * Mathf.Sin(angle);
 
                                 newShip.transform.parent = this.sourceBody.transform;
                                 newShip.transform.localPosition = new Vector3(x, 0, z);
                                 newShip.transform.rotation = this.sourceBody.transform.rotation * Quaternion.Euler(0, rotationInOrbit, 0);
+                                newShip.transform.localScale = new Vector3(
+                                        (float)Math.Round(newShip.transform.localScale.x * this.sourceBody.transform.localScale.x, 0),
+                                        (float)Math.Round(newShip.transform.localScale.y * this.sourceBody.transform.localScale.y, 0),
+                                        (float)Math.Round(newShip.transform.localScale.z * this.sourceBody.transform.localScale.z, 0));
 
                                 this.numOfShipsInOrbit++;
                                 Debug.Log($"Ship #{this.numOfShipsInOrbit} spawned at {this.name}");

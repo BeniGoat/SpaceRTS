@@ -1,53 +1,53 @@
-﻿using SpaceRTS.Models.Components;
-using System;
+﻿using SpaceRTS.Spawners;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceRTS.Models
 {
         public class Planet : MonoBehaviour
         {
-                public SystemBody planetPrefab;
-                private SystemBody planet;
+                public Moon moonPrefab;
+                public float maxOrbitalSeparationDistance;
+                public float minOrbitalSeparationDistance;
+                public int maxNumOfMoons;
+                public int minNumOfMoons;
+                public float maxMoonSize;
+                public float minMoonSize;
 
-                public void SpawnPlanetBody(int index, float orbitalSeparationDistance)
+                public SystemBody Body { get; set; }
+
+                private readonly List<Moon> moons = new List<Moon>();
+                private SystemBodySpawner bodySpawner;
+
+                private void Awake()
                 {
-                        // Set the planet's initial position in its orbit 
-                        int positionInOrbit = UnityEngine.Random.Range(0, 359);
-                        float angle = positionInOrbit * Mathf.Deg2Rad;
-                        float orbitalDistance = orbitalSeparationDistance * index;
-                        float x = orbitalDistance * Mathf.Cos(angle);
-                        float z = orbitalDistance * Mathf.Sin(angle);
-
-                        this.planet = Instantiate(this.planetPrefab, new Vector3(x, 0, z), Quaternion.identity, this.transform);
-                        this.name = $"Planet_{index}";
-
-                        //TODO: Generate variable planet sizes
-                        this.planet.SetBodySize(0.5f, 0.5f, 0.5f);
-
-                        // Get the orbital speed based on the orbital distance
-                        float orbitalSpeed = this.GetOrbitalSpeed(orbitalDistance);
-                        Rotator orbitRotator = this.GetComponent<Rotator>();
-                        orbitRotator.SetRotationSpeed(orbitalSpeed);
-
-                        // Set the planet body rotation speed
-                        Rotator bodyRotator = this.planet.GetComponent<Rotator>();
-                        bodyRotator.SetRotationSpeed(15f);
-
-                        // Create the orbit line
-                        OrbitLine orbitLine = this.GetComponent<OrbitLine>();
-                        orbitLine.CreateOrbitalPathLine(orbitalDistance, positionInOrbit);
+                        this.bodySpawner = this.GetComponent<SystemBodySpawner>();
                 }
 
-                /// <summary>
-                /// Gets the orbital speed based on the specified orbital distance.
-                /// </summary>
-                /// <param name="orbitalDistance">The orbital distance.</param>
-                /// <returns>The orbital speed.</returns>
-                private float GetOrbitalSpeed(float orbitalDistance)
+                public void SpawnBody(int index, float orbitalDistance, float size)
                 {
-                        double orbitalPeriod = Math.Sqrt(Math.Pow(orbitalDistance, 3));
-                        double orbitalLength = 2 * Math.PI * orbitalDistance;
-                        return (float)(orbitalLength / orbitalPeriod);
+                        this.name = $"Planet_{index}";
+                        this.Body = this.bodySpawner.SpawnChildBody(orbitalDistance, size);
+
+                        float previousMoonOrbitDistance = 0f;
+
+                        // Spawn the planet's moons
+                        int numOfMoons = Random.Range(this.minNumOfMoons, this.maxNumOfMoons + 1);
+                        for (int i = 0; i < numOfMoons; i++)
+                        {
+                                Moon moon = Instantiate(this.moonPrefab, this.transform);
+                                moon.transform.position = this.Body.transform.position;
+
+                                float orbitalSeparationDistance = Random.Range(this.minOrbitalSeparationDistance, this.maxOrbitalSeparationDistance);
+                                float moonOrbitalDistance = i == 0
+                                        ? this.Body.MaxDiameter + (orbitalSeparationDistance * 0.25f)
+                                        : previousMoonOrbitDistance + orbitalSeparationDistance;
+                                float moonSize = Random.Range(this.minMoonSize, this.maxMoonSize);
+
+                                moon.SpawnBody(i + 1, moonOrbitalDistance, moonSize);
+                                previousMoonOrbitDistance = moon.Body.OrbitalDistance;
+                                this.moons.Add(moon);
+                        }
                 }
         }
 }

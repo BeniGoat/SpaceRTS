@@ -46,5 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sunPrefab: {fileID: 6365920966171356602, guid: e50a27520a684eb4fa7948abd681401f, type: 3}
   planetPrefab: {fileID: 8020384180356138232, guid: 52f17fbce79852043b9aa1547a2601e1, type: 3}
-  numOfPlanets: 3
-  orbitalSeparationDistance: 3
+  maxOrbitalSeparationDistance: 12.5
+  minOrbitalSeparationDistance: 7.5
+  maxPlanetSize: 1
+  minPlanetSize: 0.2
+  minNumOfPlanets: 1
+  maxNumOfPlanets: 10
