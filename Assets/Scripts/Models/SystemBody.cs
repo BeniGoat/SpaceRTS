@@ -36,7 +36,6 @@ namespace SpaceRTS.Models
                         this.SetBodySize(new Vector3(x , y, z));
                 }
 
-
                 public void SetBodySize(Vector3 scale)
                 {
                         this.transform.localScale = scale;
