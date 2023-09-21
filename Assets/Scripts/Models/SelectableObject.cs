@@ -1,32 +1,54 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 
 namespace SpaceRTS.Models
 {
-        public class SelectableObject : MonoBehaviour
+    public class SelectableObject : MonoBehaviour
+    {
+        protected Outline outline;
+        protected Color maxColor = new Color32(170, 255, 255, 100);
+        protected Color minColor = new Color32(150, 255, 255, 0);
+
+        public bool IsSelected { get; set; }
+
+        private void Start()
         {
-                public UnityEvent onSelected;
-                public UnityEvent onDeselected;
-                public bool IsSelected { get; private set; }
-
-                protected void OnMouseDown()
-                {
-                        // Set the selected status of the object
-                        if (!this.IsSelected)
-                        {
-                                // select this object
-                                this.IsSelected = true;
-                                this.onSelected.Invoke();
-                        }
-                        else
-                        {
-                                // deselect this object
-                                this.IsSelected = false;
-                                this.onDeselected.Invoke();
-                        }
-
-                        // Perform other logic when the object is clicked
-                        Debug.Log($"{this.transform.parent.name} clicked!");
-                }
+            this.outline = this.GetComponent<Outline>();
+            this.ConfigureSelectionOutline();
         }
+
+        private void Update()
+        {
+            this.HandleObjectSelection();
+        }
+
+        private void HandleObjectSelection()
+        {
+            if (this.IsSelected)
+            {
+                if (!this.outline.enabled)
+                {
+                    this.outline.enabled = true;
+                }
+
+                this.OscillateOutline();
+            }
+            else
+            {
+                if (this.outline.enabled)
+                {
+                    this.outline.enabled = false;
+                }
+            }
+        }
+
+        protected virtual void ConfigureSelectionOutline()
+        {
+            this.outline.OutlineWidth = 2;
+        }
+
+        private void OscillateOutline()
+        {
+            this.outline.OutlineColor = Color.Lerp(this.minColor, this.maxColor, Mathf.PingPong(Time.time, 0.25f));
+        }
+    }
 }

@@ -1,3 +1,4 @@
+using SpaceRTS.Camera;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -20,7 +21,9 @@ namespace SpaceRTS.Managers
         public Canvas UI;
         private TextMeshProUGUI textMesh;
 
-        public SystemManager systemManagerPrefab;
+        public Models.System systemPrefab;
+        public CameraRig cameraRig;
+        public SelectionManager objectSelector; 
 
         private void Awake()
         {
@@ -32,9 +35,10 @@ namespace SpaceRTS.Managers
             this.SetGameSpeed(GameSpeed.x1);
 
             // Instantiate the system
-            SystemManager system = Instantiate(this.systemManagerPrefab);
+            Models.System system = Instantiate(this.systemPrefab);
 
             // Initialize any other gameplay mechanics or systems here
+            this.cameraRig.Range = system.Size;
         }
 
         private void Update()
