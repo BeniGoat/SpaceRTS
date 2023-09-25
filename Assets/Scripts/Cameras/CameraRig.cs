@@ -1,11 +1,10 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace SpaceRTS.Camera
+namespace SpaceRTS.Cameras
 {
     public class CameraRig : MonoBehaviour
     {
-        private UnityEngine.Camera mainCamera;
+        private Camera mainCamera;
         private Transform target;
 
         [SerializeField] private float moveSpeed = 0.5f;
@@ -29,7 +28,7 @@ namespace SpaceRTS.Camera
 
         private void Awake()
         {
-            this.mainCamera = UnityEngine.Camera.main;
+            this.mainCamera = Camera.main;
         }
 
         private void Start()

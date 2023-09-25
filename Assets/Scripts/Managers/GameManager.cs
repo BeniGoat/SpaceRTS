@@ -1,4 +1,4 @@
-using SpaceRTS.Camera;
+using SpaceRTS.Cameras;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -23,6 +23,7 @@ namespace SpaceRTS.Managers
 
         public Models.System systemPrefab;
         public CameraRig cameraRig;
+        public CameraManager cameraManager;
         public SelectionManager objectSelector; 
 
         private void Awake()
@@ -39,6 +40,8 @@ namespace SpaceRTS.Managers
 
             // Initialize any other gameplay mechanics or systems here
             this.cameraRig.Range = system.Size;
+            this.cameraManager.maxBounds = new Vector2(system.Size, system.Size);
+            this.cameraManager.minBounds = new Vector2(-system.Size, -system.Size);
         }
 
         private void Update()

@@ -1,4 +1,4 @@
-﻿using SpaceRTS.Camera;
+﻿using SpaceRTS.Cameras;
 using SpaceRTS.Models;
 using UnityEngine;
 
