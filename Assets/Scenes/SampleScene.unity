@@ -187,7 +187,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f96ec11d760f5f7499075a500b34e94a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraOffset: {x: 0, y: 25, z: -50}
+  cameraOffsetY: 25
+  cameraOffsetZ: -50
   moveSpeed: 100
   rotateSpeed: 100
   zoomSpeed: 100
@@ -196,6 +197,8 @@ MonoBehaviour:
   startingZoom: 8
   minBounds: {x: 0, y: 0}
   maxBounds: {x: 0, y: 0}
+  minVerticalAngle: 10
+  maxVerticalAngle: 80
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,12 +322,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b28a0e59bf957e41bb606f8865623d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPaused: 0
   UI: {fileID: 1930065200}
   systemPrefab: {fileID: 8484441316833422989, guid: 419187137ee0daf469f89e0cd1dd9e6d, type: 3}
-  cameraRig: {fileID: 456874808}
   cameraManager: {fileID: 456874809}
   objectSelector: {fileID: 2043474500}
+  cameraMode: 0
 --- !u!4 &1163783706
 Transform:
   m_ObjectHideFlags: 0
@@ -629,7 +631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030d8c01ac574be4dac9abf26052d907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CameraRig: {fileID: 456874808}
+  CameraManager: {fileID: 456874809}
 --- !u!1 &2073383305
 GameObject:
   m_ObjectHideFlags: 0

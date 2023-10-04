@@ -1,30 +1,32 @@
-using SpaceRTS.Cameras;
+using SpaceRTS.Managers.Enums;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
-    public class GameManager : MonoBehaviour
+    public partial class GameManager : MonoBehaviour
     {
-        public bool isPaused = false;
+        public Canvas UI;
+        public Models.System systemPrefab;
+        //public CameraRig cameraRig;
+        public CameraManager cameraManager;
+        public SelectionManager objectSelector;
 
-        private GameSpeed gameSpeed;
+        public GameSpeed? currentGameSpeed;
+        public CameraMode cameraMode = CameraMode.Perspective;
+
+        private bool isPaused;
         private readonly Dictionary<KeyCode, GameSpeed> gameSpeeds = new Dictionary<KeyCode, GameSpeed>()
         {
+            { KeyCode.Space, GameSpeed.Paused },
             { KeyCode.Alpha1, GameSpeed.x1 },
             { KeyCode.Alpha2, GameSpeed.x2 },
             { KeyCode.Alpha3, GameSpeed.x5 },
             { KeyCode.Alpha4, GameSpeed.x10 }
         };
 
-        public Canvas UI;
         private TextMeshProUGUI textMesh;
-
-        public Models.System systemPrefab;
-        public CameraRig cameraRig;
-        public CameraManager cameraManager;
-        public SelectionManager objectSelector; 
 
         private void Awake()
         {
@@ -33,41 +35,65 @@ namespace SpaceRTS.Managers
 
         private void Start()
         {
-            this.SetGameSpeed(GameSpeed.x1);
-
             // Instantiate the system
             Models.System system = Instantiate(this.systemPrefab);
 
-            // Initialize any other gameplay mechanics or systems here
-            this.cameraRig.Range = system.Size;
-            this.cameraManager.maxBounds = new Vector2(system.Size, system.Size);
-            this.cameraManager.minBounds = new Vector2(-system.Size, -system.Size);
+            // Initialise any other gameplay mechanics or systems here
+            //this.cameraRig.Range = system.Size;
+            this.cameraManager.SetCamera(this.cameraMode, system.Size);
+
+            // Initialise game speed
+            this.SetTimeScale(GameSpeed.Paused);
+            this.isPaused = true;
         }
 
         private void Update()
         {
-            // Check for pause input
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                this.TogglePause();
-            }
+            this.HandleGameSpeedChange();
+        }
 
+        private void HandleGameSpeedChange()
+        {
+            // Listen for any key presses related to changing the game speed
             foreach (KeyValuePair<KeyCode, GameSpeed> gameSpeedMapping in this.gameSpeeds)
             {
                 if (Input.GetKeyDown(gameSpeedMapping.Key))
                 {
-                    this.SetGameSpeed(gameSpeedMapping.Value);
+                    GameSpeed speedToSet;
+
+                    // If the pause button has been pressed
+                    if (gameSpeedMapping.Value == GameSpeed.Paused)
+                    {
+                        // Check if the game is already paused
+                        if (this.isPaused)
+                        {
+                            // If so, resume the game at the stored game speed, or at 1x speed if first time unpausing
+                            if (this.currentGameSpeed == null)
+                            {
+                                this.currentGameSpeed = GameSpeed.x1;
+                            }
+
+                            speedToSet = this.currentGameSpeed.Value;
+                        }
+                        else
+                        {
+                            // If not, set the game speed to paused
+                            speedToSet = GameSpeed.Paused;
+                        }
+
+                        // Toggle the paused flag
+                        this.isPaused = !this.isPaused;
+                    }
+                    else
+                    {
+                        // If not, set the game speed to the value and cache it
+                        speedToSet = gameSpeedMapping.Value;
+                        this.currentGameSpeed = speedToSet;
+                    }
+
+                    this.SetTimeScale(speedToSet);
                     break;
                 }
-            }
-        }
-
-        private void SetGameSpeed(GameSpeed speed)
-        {
-            this.gameSpeed = speed;
-            if (!this.isPaused)
-            {
-                this.SetTimeScale(speed);
             }
         }
 
@@ -78,25 +104,5 @@ namespace SpaceRTS.Managers
                 ? string.Empty
                 : speed.ToString();
         }
-
-        private void TogglePause()
-        {
-            this.isPaused = !this.isPaused;
-
-            var speed = this.isPaused
-                ? GameSpeed.Paused
-                : this.gameSpeed;
-
-            this.SetTimeScale(speed);
-        }
-    }
-
-    public enum GameSpeed
-    {
-        Paused = 0,
-        x1 = 1,
-        x2 = 2,
-        x5 = 5,
-        x10 = 10
     }
 }

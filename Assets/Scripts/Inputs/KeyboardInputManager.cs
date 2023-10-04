@@ -6,7 +6,8 @@ namespace SpaceRTS.Inputs
     {
         // Events
         public static event MoveInputHandler OnMoveInput;
-        public static event RotateInputManager OnRotateInput;
+        public static event RotateLateralInputHandler OnRotateLateralInput;
+        public static event RotateVerticalInputHandler OnRotateVerticalInput;
         public static event ZoomInputManager OnZoomInput;
 
         private void Update()
@@ -32,11 +33,21 @@ namespace SpaceRTS.Inputs
             // Rotate the camera left/right using the Q and E keys
             if (Input.GetKey(KeyCode.Q))
             {
-                OnRotateInput?.Invoke(1f);
+                OnRotateLateralInput?.Invoke(1f);
             }
             if (Input.GetKey(KeyCode.E))
             {
-                OnRotateInput?.Invoke(-1f);
+                OnRotateLateralInput?.Invoke(-1f);
+            }
+
+            // Rotate the camera up/down using the R and F keys
+            if (Input.GetKey(KeyCode.R))
+            {
+                OnRotateVerticalInput?.Invoke(1f);
+            }
+            if (Input.GetKey(KeyCode.F))
+            {
+                OnRotateVerticalInput?.Invoke(-1f);
             }
 
             // Zoom in or out using the Z and X keys

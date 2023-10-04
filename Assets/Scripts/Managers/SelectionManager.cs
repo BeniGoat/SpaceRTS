@@ -1,12 +1,12 @@
-﻿using SpaceRTS.Cameras;
-using SpaceRTS.Models;
+﻿using SpaceRTS.Models;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
     public class SelectionManager : MonoBehaviour
     {
-        public CameraRig CameraRig;
+        //public CameraRig CameraRig;
+        public CameraManager CameraManager;
         private SelectableObject selectedObject; // the currently selected object
 
         private void Update()
@@ -18,7 +18,7 @@ namespace SpaceRTS.Managers
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Ray ray = this.CameraRig.SendRay(Input.mousePosition);
+                Ray ray = this.CameraManager.SendRay(Input.mousePosition);
 
                 // If the raycast hits a selectable object
                 if (Physics.Raycast(ray, out RaycastHit hit) &&
@@ -36,14 +36,14 @@ namespace SpaceRTS.Managers
                     this.selectedObject.IsSelected = true;
 
                     // Move the camera to the location of the selected object and lock on to it
-                    this.CameraRig.SetTarget(this.selectedObject.transform);
+                    this.CameraManager.SetTarget(this.selectedObject.transform);
                 }
                 else if (this.selectedObject != null)
                 {
                     // Deselect the currently selected object (if there is one)
                     this.selectedObject.IsSelected = false;
                     this.selectedObject = null;
-                    this.CameraRig.SetTarget(null);
+                    this.CameraManager.SetTarget(null);
                 }
             }
         }

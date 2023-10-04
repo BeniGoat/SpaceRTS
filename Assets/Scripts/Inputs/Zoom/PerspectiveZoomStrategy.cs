@@ -6,6 +6,7 @@ namespace SpaceRTS.Inputs.Zoom
     {
         private Vector3 normalisedCameraPosition;
         private float currentZoomLevel;
+        private readonly bool isCameraInitialised;
 
         public float NearZoomLimit { get; } = 5f;
 
@@ -13,11 +14,12 @@ namespace SpaceRTS.Inputs.Zoom
 
         public float StartingZoom { get; } = 50f;
 
-        public PerspectiveZoomStrategy(Camera cam, Vector3 offset)
+        public PerspectiveZoomStrategy(Camera cam, float cameraOffsetY, float cameraOffsetZ)
         {
-            this.normalisedCameraPosition = new Vector3(0f, offset.y, offset.z).normalized;
+            this.normalisedCameraPosition = new Vector3(0f, cameraOffsetY, cameraOffsetZ).normalized;
             this.currentZoomLevel = this.StartingZoom;
             this.PositionCamera(cam);
+            this.isCameraInitialised = true;
         }
 
         public void ZoomIn(Camera cam, float delta)
@@ -38,6 +40,11 @@ namespace SpaceRTS.Inputs.Zoom
 
         private void PositionCamera(Camera cam)
         {
+            if (this.isCameraInitialised)
+            {
+                this.normalisedCameraPosition = new Vector3(0f, cam.transform.localPosition.y, cam.transform.localPosition.z).normalized;
+            }
+
             cam.transform.localPosition = this.normalisedCameraPosition * this.currentZoomLevel;
         }
     }

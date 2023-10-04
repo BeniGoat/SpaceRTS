@@ -6,11 +6,12 @@ namespace SpaceRTS.Inputs
     {
         private Vector2Int screen;
         private Vector3 mousePos;
-        private float mousePosOnRotateStart;
+        private Vector2 mousePosOnRotateStart;
 
         // Events
         public static event MoveInputHandler OnMoveInput;
-        public static event RotateInputManager OnRotateInput;
+        public static event RotateLateralInputHandler OnRotateLateralInput;
+        public static event RotateVerticalInputHandler OnRotateVerticalInput;
         public static event ZoomInputManager OnZoomInput;
 
         private void Awake()
@@ -51,17 +52,26 @@ namespace SpaceRTS.Inputs
             // Mouse button rotate
             if (Input.GetMouseButtonDown(2))
             {
-                this.mousePosOnRotateStart = this.mousePos.x;
+                this.mousePosOnRotateStart = new Vector2(this.mousePos.x, this.mousePos.y);
             }
             else if (Input.GetMouseButton(2))
             {
-                if (this.mousePos.x < this.mousePosOnRotateStart)
+                if (this.mousePos.x < this.mousePosOnRotateStart.x)
                 {
-                    OnRotateInput?.Invoke(-1f);
+                    OnRotateLateralInput?.Invoke(-1f);
                 }
-                else if (this.mousePos.x > this.mousePosOnRotateStart)
+                else if (this.mousePos.x > this.mousePosOnRotateStart.x)
                 {
-                    OnRotateInput?.Invoke(1f);
+                    OnRotateLateralInput?.Invoke(1f);
+                }
+
+                if (this.mousePos.y < this.mousePosOnRotateStart.y)
+                {
+                    OnRotateVerticalInput?.Invoke(1f);
+                }
+                else if (this.mousePos.y > this.mousePosOnRotateStart.y)
+                {
+                    OnRotateVerticalInput?.Invoke(-1f);
                 }
             }
 

@@ -10,9 +10,9 @@ namespace SpaceRTS.Inputs.Zoom
 
         public float StartingZoom { get; } = 8f;
 
-        public OrthographicZoomStrategy(Camera cam, Vector3 cameraOffset)
+        public OrthographicZoomStrategy(Camera cam, float cameraOffsetY, float cameraOffsetZ)
         {
-            cam.transform.localPosition = new Vector3(0f, cameraOffset.y, cameraOffset.z);
+            cam.transform.localPosition = new Vector3(0f, cameraOffsetY, cameraOffsetZ);
             cam.orthographicSize = this.StartingZoom;
             cam.farClipPlane = 100f;
             cam.nearClipPlane = -5f;
