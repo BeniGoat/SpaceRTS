@@ -192,7 +192,7 @@ MonoBehaviour:
   moveSpeed: 100
   rotateSpeed: 100
   zoomSpeed: 100
-  nearZoomLimit: 2
+  nearZoomLimit: 1
   farZoomLimit: 16
   startingZoom: 8
   minBounds: {x: 0, y: 0}

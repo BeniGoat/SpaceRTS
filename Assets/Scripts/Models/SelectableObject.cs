@@ -48,7 +48,10 @@ namespace SpaceRTS.Models
 
         private void OscillateOutline()
         {
-            this.outline.OutlineColor = Color.Lerp(this.minColor, this.maxColor, Mathf.PingPong(Time.time, 0.25f));
+            this.outline.OutlineColor = Color.Lerp(
+                this.minColor, 
+                this.maxColor, 
+                Mathf.PingPong(Time.realtimeSinceStartup, 1f));
         }
     }
 }
