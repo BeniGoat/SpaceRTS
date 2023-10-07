@@ -59,26 +59,16 @@ namespace SpaceRTS.Managers
             {
                 if (Input.GetKeyDown(gameSpeedMapping.Key))
                 {
-                    GameSpeed speedToSet;
+                    GameSpeed speedToSet = gameSpeedMapping.Value;
 
                     // If the pause button has been pressed
-                    if (gameSpeedMapping.Value == GameSpeed.Paused)
+                    if (speedToSet == GameSpeed.Paused)
                     {
                         // Check if the game is already paused
                         if (this.isPaused)
                         {
                             // If so, resume the game at the stored game speed, or at 1x speed if first time unpausing
-                            if (this.currentGameSpeed == null)
-                            {
-                                this.currentGameSpeed = GameSpeed.x1;
-                            }
-
-                            speedToSet = this.currentGameSpeed.Value;
-                        }
-                        else
-                        {
-                            // If not, set the game speed to paused
-                            speedToSet = GameSpeed.Paused;
+                            speedToSet = this.currentGameSpeed ?? GameSpeed.x1;
                         }
 
                         // Toggle the paused flag
@@ -87,7 +77,6 @@ namespace SpaceRTS.Managers
                     else
                     {
                         // If not, set the game speed to the value and cache it
-                        speedToSet = gameSpeedMapping.Value;
                         this.currentGameSpeed = speedToSet;
                     }
 
