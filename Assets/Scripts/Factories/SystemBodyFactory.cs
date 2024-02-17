@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SpaceRTS.Spawners
 {
-    public class SystemBodySpawner : MonoBehaviour
+    public class SystemBodyFactory : MonoBehaviour
     {
         public SystemBody childBodyPrefab;
 
@@ -24,12 +24,12 @@ namespace SpaceRTS.Spawners
 
             // Set the child body rotation speed
             Rotator bodyRotator = childBody.GetComponent<Rotator>();
-            bodyRotator.SetRotation(30f, Vector3.up);
+            bodyRotator.SetOrbitalSpeed(30f, Vector3.up);
 
             // Get the orbital speed based on the orbital distance
             float orbitalSpeed = this.CalculateOrbitalSpeed(orbitalDistance);
             Rotator orbitRotator = this.GetComponent<Rotator>();
-            orbitRotator.SetRotation(orbitalSpeed, Vector3.up);
+            orbitRotator.SetOrbitalSpeed(orbitalSpeed, Vector3.up);
 
             // Create the orbit line
             OrbitLine orbitLine = this.GetComponent<OrbitLine>();

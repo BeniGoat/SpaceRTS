@@ -6,11 +6,11 @@ namespace SpaceRTS.Models
     public class Moon : MonoBehaviour
     {
         public SystemBody Body { get; set; }
-        private SystemBodySpawner bodySpawner;
+        private SystemBodyFactory bodySpawner;
 
         private void Awake()
         {
-            this.bodySpawner = this.GetComponent<SystemBodySpawner>();
+            this.bodySpawner = this.GetComponent<SystemBodyFactory>();
         }
 
         public void SpawnBody(int index, float orbitalDistance, float size)

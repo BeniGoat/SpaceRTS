@@ -5,15 +5,23 @@ using System;
 
 namespace SpaceRTS.Spawners
 {
-    public class ShipSpawner : MonoBehaviour
+    public class ShipFactory : MonoBehaviour
     {
-        public GameObject shipPrefab;
-        public float distanceFromSurface;
+        public Ship shipPrefab;
         private SystemBody sourceBody;
         private int numOfShipsInOrbit;
 
-        private readonly List<int> orbitalPositions = new List<int> { 0, 45, 90, 135, 180, 225, 270, 315 };
-        private readonly List<int> orbitalRotations = new List<int> { 90, 45, 0, 315, 270, 225, 180, 135 };
+        private readonly List<(int, int)> orbitalPositionAndRotationAngles = new List<(int, int)>
+        {
+            (0, 90),
+            (45, 45),
+            (90, 0),
+            (135, 315),
+            (180, 270),
+            (225, 225),
+            (270, 180),
+            (315, 135)
+        };
 
         private void Start()
         {
@@ -30,15 +38,17 @@ namespace SpaceRTS.Spawners
 
         private void SpawnShip()
         {
-            if (this.numOfShipsInOrbit < this.orbitalPositions.Count)
+            if (this.numOfShipsInOrbit < this.orbitalPositionAndRotationAngles.Count)
             {
-                GameObject newShip = Instantiate(this.shipPrefab);
+                Ship newShip = Instantiate(this.shipPrefab);
+                newShip.name = $"Ship_{this.numOfShipsInOrbit}_From_{this.sourceBody.name}";
+                newShip.CurrentSystemBody = this.sourceBody;
 
-                // Set the object's initial position and rotation in its orbit 
-                int positionInOrbit = this.orbitalPositions[this.numOfShipsInOrbit];
-                int rotationInOrbit = this.orbitalRotations[this.numOfShipsInOrbit];
+                // Set the object's initial position and rotation angle in its orbit 
+                int positionInOrbit = this.orbitalPositionAndRotationAngles[this.numOfShipsInOrbit].Item1;
+                int rotationInOrbit = this.orbitalPositionAndRotationAngles[this.numOfShipsInOrbit].Item2;
                 float angle = positionInOrbit * Mathf.Deg2Rad;
-                float orbitalDistance = this.sourceBody.MaxDiameter + this.distanceFromSurface;
+                float orbitalDistance = this.sourceBody.MaxRadius * 1.2f;
                 float x = orbitalDistance * Mathf.Cos(angle);
                 float z = orbitalDistance * Mathf.Sin(angle);
 
@@ -51,7 +61,7 @@ namespace SpaceRTS.Spawners
                         (float)Math.Round(newShip.transform.localScale.z * this.sourceBody.transform.localScale.z, 0));
 
                 this.numOfShipsInOrbit++;
-                Debug.Log($"Ship #{this.numOfShipsInOrbit} spawned at {this.name}");
+                Debug.Log($"{newShip.name} spawned");
             }
         }
     }

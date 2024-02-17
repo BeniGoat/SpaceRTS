@@ -9,8 +9,8 @@ namespace SpaceRTS.Models
         public Planet planetPrefab;
         public float maxOrbitalSeparationDistance;
         public float minOrbitalSeparationDistance;
-        public float maxPlanetSize;
-        public float minPlanetSize;
+        public int maxPlanetSize;
+        public int minPlanetSize;
         public int minNumOfPlanets;
         public int maxNumOfPlanets;
 
@@ -51,7 +51,7 @@ namespace SpaceRTS.Models
             for (int i = 0; i < this.numOfPlanets; i++)
             {
                 Planet planet = Instantiate(this.planetPrefab);
-                float planetSize = Random.Range(this.minPlanetSize, this.maxPlanetSize);
+                float planetSize = Random.Range(this.minPlanetSize, this.maxPlanetSize + 1) * 0.1f;
                 planet.SpawnBody(i + 1, this.planetOrbitalDistances[i], planetSize);
                 this.planets.Add(planet);
             }

@@ -48,7 +48,7 @@ MonoBehaviour:
   planetPrefab: {fileID: 8020384180356138232, guid: 52f17fbce79852043b9aa1547a2601e1, type: 3}
   maxOrbitalSeparationDistance: 12.5
   minOrbitalSeparationDistance: 7.5
-  maxPlanetSize: 1
-  minPlanetSize: 0.2
+  maxPlanetSize: 10
+  minPlanetSize: 2
   minNumOfPlanets: 1
   maxNumOfPlanets: 10

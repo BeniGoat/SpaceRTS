@@ -9,9 +9,9 @@ namespace SpaceRTS.Managers
     {
         public Canvas UI;
         public Models.System systemPrefab;
-        //public CameraRig cameraRig;
         public CameraManager cameraManager;
-        public SelectionManager objectSelector;
+        public SelectionManager selectionManager;
+        public MovementManager movementManager;
 
         public GameSpeed? currentGameSpeed;
         public CameraMode cameraMode = CameraMode.Perspective;

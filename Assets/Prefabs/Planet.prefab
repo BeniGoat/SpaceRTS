@@ -149,12 +149,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moonPrefab: {fileID: -4488196078252135381, guid: 0b18cb99f2d6b5b43a9c6fece5177ffc, type: 3}
-  maxOrbitalSeparationDistance: 0.25
-  minOrbitalSeparationDistance: 0.1
+  maxOrbitalSeparationDistance: 25
+  minOrbitalSeparationDistance: 0
   maxNumOfMoons: 5
   minNumOfMoons: 1
-  maxMoonSize: 0.02
-  minMoonSize: 0.1
+  maxMoonSize: 5
+  minMoonSize: 1
 --- !u!114 &6531189874010212316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,7 +180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ca422bb9c1f2474b993966be0a8af42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  degreesPerSecond: 0
 --- !u!114 &4380584136702298934
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,8 +192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15b9a18a7d921654bb2e8bad6af1f634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shipPrefab: {fileID: 1191978471650237335, guid: 752f0d3cacb1e384cab476af3ebc43fc, type: 3}
-  distanceFromSurface: 0.2
+  shipPrefab: {fileID: 6097181097171975033, guid: 752f0d3cacb1e384cab476af3ebc43fc, type: 3}
 --- !u!114 &-8026526468227089866
 MonoBehaviour:
   m_ObjectHideFlags: 0

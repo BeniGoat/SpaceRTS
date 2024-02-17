@@ -6,23 +6,28 @@ namespace SpaceRTS.Models
     {
         public float OrbitalDistance { get; set; }
 
-        public float MaxDiameter
+        public float MaxRadius
         {
             get
             {
-                float maxRadius = this.transform.lossyScale.z;
-                if (this.transform.lossyScale.y > this.transform.lossyScale.z)
+                float maxRadius = this.transform.lossyScale.normalized.z;
+                if (this.transform.lossyScale.normalized.y > this.transform.lossyScale.normalized.z)
                 {
-                    maxRadius = this.transform.lossyScale.y;
+                    maxRadius = this.transform.lossyScale.normalized.y;
                 }
 
-                if (this.transform.lossyScale.x > maxRadius)
+                if (this.transform.lossyScale.normalized.x > maxRadius)
                 {
-                    maxRadius = this.transform.lossyScale.x;
+                    maxRadius = this.transform.lossyScale.normalized.x;
                 }
 
                 return maxRadius;
             }
+        }
+
+        private void Awake()
+        {
+            this.ConfigureSelectionOutline(this.MaxRadius * 2f);
         }
 
         public void SetBodySize(float diameter)
@@ -38,11 +43,6 @@ namespace SpaceRTS.Models
         public void SetBodySize(Vector3 scale)
         {
             this.transform.localScale = scale;
-        }
-
-        protected override void ConfigureSelectionOutline()
-        {
-            //TODO: vary outline width based on body size and camera distance
         }
     }
 }

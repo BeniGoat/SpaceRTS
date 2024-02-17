@@ -7,7 +7,7 @@ namespace SpaceRTS.Managers
     {
         //public CameraRig CameraRig;
         public CameraManager CameraManager;
-        private SelectableObject selectedObject; // the currently selected object
+        private SelectableObject currentSelectedObject;
 
         private void Update()
         {
@@ -18,34 +18,63 @@ namespace SpaceRTS.Managers
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Ray ray = this.CameraManager.SendRay(Input.mousePosition);
+                SelectableObject newSelectedObject = this.GetSelectableObjectClicked();
 
                 // If the raycast hits a selectable object
-                if (Physics.Raycast(ray, out RaycastHit hit) &&
-                    hit.transform.TryGetComponent(out SelectableObject newSelectedObject) &&
-                    newSelectedObject != this.selectedObject)
+                if (newSelectedObject != null && newSelectedObject != this.currentSelectedObject)
                 {
                     // Deselect the currently selected object (if there is one)
-                    if (this.selectedObject != null)
+                    if (this.currentSelectedObject != null)
                     {
-                        this.selectedObject.IsSelected = false;
+                        this.currentSelectedObject.IsSelected = false;
                     }
 
                     // Set the new object as the selected object
-                    this.selectedObject = newSelectedObject;
-                    this.selectedObject.IsSelected = true;
+                    this.currentSelectedObject = newSelectedObject;
+                    this.currentSelectedObject.IsSelected = true;
 
                     // Move the camera to the location of the selected object and lock on to it
-                    this.CameraManager.SetTarget(this.selectedObject.transform);
+                    this.CameraManager.SetTarget(this.currentSelectedObject.transform);
                 }
-                else if (this.selectedObject != null)
+                else if (this.currentSelectedObject != null)
                 {
+                    if (this.currentSelectedObject is Ship ship)
+                    {
+                        ship.HandleMovement();
+                    }
+
                     // Deselect the currently selected object (if there is one)
-                    this.selectedObject.IsSelected = false;
-                    this.selectedObject = null;
+                    this.currentSelectedObject.IsSelected = false;
+                    this.currentSelectedObject = null;
                     this.CameraManager.SetTarget(null);
                 }
             }
+            else if (Input.GetMouseButtonDown(1))
+            {
+                if (this.currentSelectedObject is Ship ship)
+                {
+                    SelectableObject newSelectedObject = this.GetSelectableObjectClicked();
+
+                    if (newSelectedObject != this.currentSelectedObject)
+                    {                    
+                        ship.HandleMovement(newSelectedObject);
+                    }
+                }
+            }
+        }
+
+        private SelectableObject GetSelectableObjectClicked()
+        {
+            SelectableObject selectedObject = null;
+
+            // If the raycast hits a selectable object
+            Ray ray = this.CameraManager.SendRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit) && hit.transform.TryGetComponent(out SelectableObject selectableObject))
+            {
+                selectedObject = selectableObject;
+            }
+
+            return selectedObject;
         }
     }
 }

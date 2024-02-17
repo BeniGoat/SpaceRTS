@@ -10,40 +10,39 @@ namespace SpaceRTS.Models
 
         public bool IsSelected { get; set; }
 
-        private void Start()
-        {
-            this.outline = this.GetComponent<Outline>();
-            this.ConfigureSelectionOutline();
-        }
-
         private void Update()
         {
-            this.HandleObjectSelection();
+            this.HandleObjectSelection();            
         }
 
-        private void HandleObjectSelection()
+        protected void HandleObjectSelection()
         {
-            if (this.IsSelected)
+            if (this.outline != null)
             {
-                if (!this.outline.enabled)
+                if (this.IsSelected)
                 {
-                    this.outline.enabled = true;
-                }
+                    if (!this.outline.enabled)
+                    {
+                        this.outline.enabled = true;
+                    }
 
-                this.OscillateOutline();
-            }
-            else
-            {
-                if (this.outline.enabled)
+                    this.OscillateOutline();
+                }
+                else
                 {
-                    this.outline.enabled = false;
+                    if (this.outline.enabled)
+                    {
+                        this.outline.enabled = false;
+                    }
                 }
             }
         }
 
-        protected virtual void ConfigureSelectionOutline()
+        protected void ConfigureSelectionOutline(float outlineWidth)
         {
-            this.outline.OutlineWidth = 2;
+            this.outline = this.GetComponent<Outline>();
+            this.outline.enabled = false;
+            this.outline.OutlineWidth = outlineWidth;
         }
 
         private void OscillateOutline()
