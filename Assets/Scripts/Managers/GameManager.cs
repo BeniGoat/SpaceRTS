@@ -1,6 +1,5 @@
+using SpaceRTS.Factories;
 using SpaceRTS.Managers.Enums;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -9,13 +8,14 @@ namespace SpaceRTS.Managers
 	/// Manages the overall game state, including initializing the game world, setting up managers, and configuring the camera.
 	/// It serves as the central point for coordinating various systems in the game.
 	/// </summary>
-	public partial class GameManager : MonoBehaviour
+	public class GameManager : MonoBehaviour
     {
-		[Header("Prefabs")]
-		[SerializeField] private Models.System systemPrefab;
+		[Header("Factories")]
+		[SerializeField] private SystemFactory systemFactory;
 
 		[Header("Managers")]
 		[SerializeField] private CameraManager cameraManager;
+		[SerializeField] private CommandManager commandManager;
 		[SerializeField] private MovementManager movementManager;
 		[SerializeField] private SelectionManager selectionManager;
 		[SerializeField] private TimeScaleManager timeScaleManager;
@@ -25,11 +25,11 @@ namespace SpaceRTS.Managers
 
 		private void Start()
 		{
-			// Instantiate the system
-			Models.System system = Instantiate(this.systemPrefab);
+			// Spawn the star system and get its size
+			float systemSize = this.systemFactory.Initialise();
 
 			// Initialize camera with system bounds
-			this.cameraManager.SetCamera(this.cameraMode, system.Size);
+			this.cameraManager.SetCamera(this.cameraMode, systemSize);
 		}
 	}
 }

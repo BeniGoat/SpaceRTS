@@ -3,21 +3,31 @@ using SpaceRTS.Models.Components;
 using System;
 using UnityEngine;
 
-namespace SpaceRTS.Spawners
+namespace SpaceRTS.Factories
 {
-    public class SystemBodyFactory : MonoBehaviour
+	/// <summary>
+	/// Factory responsible for spawning system bodies (planets and moons) in the star system.
+	/// </summary>
+	public class SystemBodyFactory : MonoBehaviour
     {
-        public SystemBody childBodyPrefab;
+		[SerializeField] private SystemBody childBodyPrefab;
 
-        public SystemBody SpawnChildBody(float orbitalDistance, float bodyDiameter)
+		/// <summary>
+		/// Spawns a child body (planet or moon) at the specified orbital distance and with the specified diameter.
+		/// </summary>
+		/// <param name="orbitalDistance">The orbital distance of the child body from its parent.</param>
+		/// <param name="bodyDiameter">The diameter of the child body.</param>
+		/// <returns>The spawned child body.</returns>
+		public SystemBody SpawnChildBody(float orbitalDistance, float bodyDiameter)
         {
-            // Set the child's initial position in its orbit 
-            int positionInOrbit = UnityEngine.Random.Range(0, 359);
+			// Calculate a random position in the orbit for the child body
+			int positionInOrbit = UnityEngine.Random.Range(0, 359);
             float angle = positionInOrbit * Mathf.Deg2Rad;
             float x = orbitalDistance * Mathf.Cos(angle);
             float z = orbitalDistance * Mathf.Sin(angle);
 
-            var childBody = Instantiate(this.childBodyPrefab, this.transform);
+			// Instantiate the child body prefab and set its properties
+			var childBody = Instantiate(this.childBodyPrefab, this.transform);
             childBody.transform.localPosition = new Vector3(x, 0, z);
             childBody.SetBodySize(bodyDiameter);
             childBody.OrbitalDistance = orbitalDistance;

@@ -1,51 +1,39 @@
-﻿using SpaceRTS.Spawners;
-using System.Collections.Generic;
+﻿using SpaceRTS.Factories;
 using UnityEngine;
 
 namespace SpaceRTS.Models
 {
-    public class Planet : MonoBehaviour
+	/// <summary>
+	/// Represents a planet in the star system. Holds its body reference and configuration.
+	/// Moon spawning is handled externally by the <see cref="SystemBodyFactory"/> attached to this GameObject.
+    /// </summary>
+	public class Planet : MonoBehaviour
     {
-        public Moon moonPrefab;
-        public int maxOrbitalSeparationDistance;
-        public int minOrbitalSeparationDistance;
-        public int maxNumOfMoons;
-        public int minNumOfMoons;
-        public int maxMoonSize;
-        public int minMoonSize;
+		public SystemBody Body { get; private set; }
 
-        public SystemBody Body { get; set; }
+		private SystemBodyFactory bodyFactory;
+		private MoonFactory moonFactory;
 
-        private readonly List<Moon> moons = new List<Moon>();
-        private SystemBodyFactory bodySpawner;
-
-        private void Awake()
+		private void Awake()
         {
-            this.bodySpawner = this.GetComponent<SystemBodyFactory>();
+			// Get references to the SystemBodyFactory and MoonFactory components attached to this GameObject
+			this.bodyFactory = this.GetComponent<SystemBodyFactory>();
+            this.moonFactory = this.GetComponent<MoonFactory>();
         }
 
-        public void SpawnBody(int index, float orbitalDistance, float size)
+		/// <summary>
+		/// Spawns a planet body with the specified index, orbital distance, and size.
+		/// The planet's name is set based on the index, and its body is created using the SystemBodyFactory.
+		/// After spawning the planet body, moons are spawned around it using the MoonFactory.
+		/// </summary>
+		/// <param name="index">The index of the planet.</param>
+		/// <param name="orbitalDistance">The orbital distance of the planet from its parent body.</param>
+		/// <param name="size">The size of the planet.</param>
+		public void Initialise(int index, float orbitalDistance, float size)
         {
-            this.name = $"Planet_{index}";
-            this.Body = this.bodySpawner.SpawnChildBody(orbitalDistance, size);
-
-            int numOfMoons = Random.Range(this.minNumOfMoons, this.maxNumOfMoons + 1);
-            for (int i = 0; i < numOfMoons; i++)
-            {
-                Moon moon = Instantiate(this.moonPrefab, this.transform);
-                moon.transform.position = this.Body.transform.position;
-
-                // Get the orbital distance difference between this moon's orbit and either the planet's surface or the previous moon's orbit
-                float orbitalSeparationDistance = Random.Range(this.minOrbitalSeparationDistance, this.maxOrbitalSeparationDistance + 1) * 0.01f;
-                float moonOrbitalDistance = i == 0
-                    ? this.Body.MaxRadius + orbitalSeparationDistance
-                    : this.moons[i-1].Body.OrbitalDistance + orbitalSeparationDistance;
-
-                // Spawn the moon
-                float moonSize = Random.Range(this.minMoonSize, this.maxMoonSize + 1) * 0.02f;
-                moon.SpawnBody(i + 1, moonOrbitalDistance, moonSize);
-                this.moons.Add(moon);
-            }
-        }
-    }
+			this.name = $"Planet_{index}";
+			this.Body = this.bodyFactory.SpawnChildBody(orbitalDistance, size);
+			this.moonFactory.SpawnMoons(this.Body);
+		}
+	}
 }

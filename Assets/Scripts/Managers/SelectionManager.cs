@@ -1,80 +1,100 @@
-﻿using SpaceRTS.Models;
+﻿using System;
+using SpaceRTS.Inputs;
+using SpaceRTS.Models;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
-    public class SelectionManager : MonoBehaviour
+	/// <summary>
+	/// Manages the selection of objects in the game world.
+	/// It listens for selection input events and performs raycasting to determine which object is selected.
+	/// It maintains the current selection state and notifies other systems when the selection changes.
+	/// </summary>
+	public class SelectionManager : MonoBehaviour
     {
-        //public CameraRig CameraRig;
-        public CameraManager CameraManager;
-        private SelectableObject currentSelectedObject;
+		/// <summary>
+		/// Event fired when the selection changes. The parameter is the newly selected object, or null if no object is selected.
+		/// </summary>
+		public static event Action<SelectableObject> OnSelectionChanged;
+		
+        [SerializeField] private CameraManager cameraManager;
+		private SelectableObject currentSelection;
 
-        private void Update()
-        {
-            this.HandleMouseClick();
-        }
+		private void OnEnable()
+		{
+			// Subscribe to the selection input event
+			SelectionInputManager.OnSelectInput += this.HandleSelectInput;
+		}
 
-        private void HandleMouseClick()
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                SelectableObject newSelectedObject = this.GetSelectableObjectClicked();
+		private void OnDisable()
+		{
+			// Unsubscribe from the selection input event
+			SelectionInputManager.OnSelectInput -= this.HandleSelectInput;
+		}
 
-                // If the raycast hits a selectable object
-                if (newSelectedObject != null && newSelectedObject != this.currentSelectedObject)
-                {
-                    // Deselect the currently selected object (if there is one)
-                    if (this.currentSelectedObject != null)
-                    {
-                        this.currentSelectedObject.IsSelected = false;
-                    }
+		/// <summary>
+		/// Handles the selection input from the user. It performs a raycast to determine if
+        /// a selectable object was clicked, and updates the current selection accordingly.
+        /// If a new object is selected, it deselects the previous one and sets the camera target to the new selection. 
+        /// If no object is selected, it clears the selection and resets the camera target.
+		/// </summary>
+		/// <param name="screenPosition">The screen position where the selection input occurred.</param>
+		private void HandleSelectInput(Vector3 screenPosition)
+		{
+			// Perform a raycast to determine if a selectable object was clicked
+			SelectableObject clicked = this.Raycast(screenPosition);
 
-                    // Set the new object as the selected object
-                    this.currentSelectedObject = newSelectedObject;
-                    this.currentSelectedObject.IsSelected = true;
+			// If a new object is selected, deselect the previous one and set the camera target to the new selection
+			if (clicked != null && clicked != this.currentSelection)
+			{
+				this.Deselect();
+				this.currentSelection = clicked;
+				this.currentSelection.IsSelected = true;
+				this.cameraManager.SetTarget(this.currentSelection.transform);
+			}
+			else
+			{
+				// If no object is selected, clear the selection and reset the camera target
+				this.Deselect();
+				this.cameraManager.SetTarget(null);
+			}
 
-                    // Move the camera to the location of the selected object and lock on to it
-                    this.CameraManager.SetTarget(this.currentSelectedObject.transform);
-                }
-                else if (this.currentSelectedObject != null)
-                {
-                    if (this.currentSelectedObject is Ship ship)
-                    {
-                        ship.HandleMovement();
-                    }
+			// Invoke the selection changed event to notify other systems of the new selection
+			OnSelectionChanged?.Invoke(this.currentSelection);
+		}
 
-                    // Deselect the currently selected object (if there is one)
-                    this.currentSelectedObject.IsSelected = false;
-                    this.currentSelectedObject = null;
-                    this.CameraManager.SetTarget(null);
-                }
-            }
-            else if (Input.GetMouseButtonDown(1))
-            {
-                if (this.currentSelectedObject is Ship ship)
-                {
-                    SelectableObject newSelectedObject = this.GetSelectableObjectClicked();
+		/// <summary>
+		/// Performs a raycast from the camera to the specified screen position
+        /// and returns the first selectable object hit by the raycast, if any.
+		/// </summary>
+		private void Deselect()
+		{
+			if (this.currentSelection != null)
+			{
+				this.currentSelection.IsSelected = false;
+				this.currentSelection = null;
+			}
+		}
 
-                    if (newSelectedObject != this.currentSelectedObject)
-                    {                    
-                        ship.HandleMovement(newSelectedObject);
-                    }
-                }
-            }
-        }
+		/// <summary>
+		/// Performs a raycast from the camera to the specified screen position and
+		/// returns the first selectable object hit by the raycast, if any.
+		/// </summary>
+		/// <param name="screenPosition">The screen position where the raycast should originate.</param>
+		/// <returns>The first selectable object hit by the raycast, or null if none is hit.</returns>
+		private SelectableObject Raycast(Vector3 screenPosition)
+		{
+			// Perform a raycast from the camera to the specified screen position
+			Ray ray = this.cameraManager.SendRay(screenPosition);
 
-        private SelectableObject GetSelectableObjectClicked()
-        {
-            SelectableObject selectedObject = null;
+			// Check if the raycast hits a selectable object and return it, otherwise return null
+			if (Physics.Raycast(ray, out RaycastHit hit) &&
+				hit.transform.TryGetComponent(out SelectableObject obj))
+			{
+				return obj;
+			}
 
-            // If the raycast hits a selectable object
-            Ray ray = this.CameraManager.SendRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit) && hit.transform.TryGetComponent(out SelectableObject selectableObject))
-            {
-                selectedObject = selectableObject;
-            }
-
-            return selectedObject;
-        }
-    }
+			return null;
+		}
+	}
 }
