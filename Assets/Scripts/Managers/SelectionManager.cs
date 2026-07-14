@@ -1,6 +1,7 @@
 ﻿using System;
 using SpaceRTS.Inputs;
 using SpaceRTS.Models;
+using SpaceRTS.Models.Interfaces;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -15,20 +16,18 @@ namespace SpaceRTS.Managers
 		/// <summary>
 		/// Event fired when the selection changes. The parameter is the newly selected object, or null if no object is selected.
 		/// </summary>
-		public static event Action<SelectableObject> OnSelectionChanged;
+        public static event Action<ISelectable> OnSelectionChanged;
 		
         [SerializeField] private CameraManager cameraManager;
-		private SelectableObject currentSelection;
+		private ISelectable currentSelection;
 
 		private void OnEnable()
 		{
-			// Subscribe to the selection input event
 			SelectionInputManager.OnSelectInput += this.HandleSelectInput;
 		}
 
 		private void OnDisable()
 		{
-			// Unsubscribe from the selection input event
 			SelectionInputManager.OnSelectInput -= this.HandleSelectInput;
 		}
 
@@ -42,7 +41,7 @@ namespace SpaceRTS.Managers
 		private void HandleSelectInput(Vector3 screenPosition)
 		{
 			// Perform a raycast to determine if a selectable object was clicked
-			SelectableObject clicked = this.Raycast(screenPosition);
+			ISelectable clicked = this.Raycast(screenPosition);
 
 			// If a new object is selected, deselect the previous one and set the camera target to the new selection
 			if (clicked != null && clicked != this.currentSelection)
@@ -50,7 +49,11 @@ namespace SpaceRTS.Managers
 				this.Deselect();
 				this.currentSelection = clicked;
 				this.currentSelection.IsSelected = true;
-				this.cameraManager.SetTarget(this.currentSelection.transform);
+				
+				if (this.currentSelection.GetTransform() is Transform targetTransform)
+				{
+					this.cameraManager.SetTarget(targetTransform);
+				}
 			}
 			else
 			{
@@ -82,16 +85,16 @@ namespace SpaceRTS.Managers
 		/// </summary>
 		/// <param name="screenPosition">The screen position where the raycast should originate.</param>
 		/// <returns>The first selectable object hit by the raycast, or null if none is hit.</returns>
-		private SelectableObject Raycast(Vector3 screenPosition)
+		private ISelectable Raycast(Vector3 screenPosition)
 		{
 			// Perform a raycast from the camera to the specified screen position
 			Ray ray = this.cameraManager.SendRay(screenPosition);
 
 			// Check if the raycast hits a selectable object and return it, otherwise return null
 			if (Physics.Raycast(ray, out RaycastHit hit) &&
-				hit.transform.TryGetComponent(out SelectableObject obj))
+                hit.transform.TryGetComponent<ISelectable>(out var selectable))
 			{
-				return obj;
+				return selectable;
 			}
 
 			return null;

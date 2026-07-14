@@ -1,5 +1,6 @@
 ﻿using SpaceRTS.Inputs;
 using SpaceRTS.Models;
+using SpaceRTS.Models.Interfaces;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -11,7 +12,7 @@ namespace SpaceRTS.Managers
 	public class CommandManager : MonoBehaviour
 	{
 		[SerializeField] private CameraManager cameraManager;
-		private SelectableObject currentSelection;
+		private ISelectable currentSelection;
 
 		private void OnEnable()
 		{
@@ -33,7 +34,7 @@ namespace SpaceRTS.Managers
 		/// Handles the selection change event. It updates the current selection.
 		/// </summary>
 		/// <param name="selection">The newly selected object.</param>
-		private void HandleSelectionChanged(SelectableObject selection)
+		private void HandleSelectionChanged(ISelectable selection)
 		{
 			this.currentSelection = selection;
 		}
@@ -45,8 +46,11 @@ namespace SpaceRTS.Managers
 		/// <param name="screenPosition">The screen position of the mouse click.</param>
 		private void HandleCommandInput(Vector3 screenPosition)
 		{
-			// Only proceed if the current selection is a Ship
-			if (this.currentSelection is not Ship ship) return;
+			// If the current selection is not a ship, do nothing
+			if (!this.currentSelection.TryGetComponent<Ship>(out var ship))
+			{
+				return;
+			}
 
 			// Perform a raycast to determine if a system body was clicked
 			Ray ray = this.cameraManager.SendRay(screenPosition);
@@ -71,7 +75,10 @@ namespace SpaceRTS.Managers
 		/// </summary>
 		private void HandleBuildInput()
 		{
-			if (this.currentSelection is not SystemBody selectedBody) return;
+    		if (!this.currentSelection.TryGetComponent<SystemBody>(out var selectedBody))
+			{
+				return;
+			}
 
 			// Find the ShipFactory on the selected body's parent hierarchy
 			ShipFactory shipFactory = selectedBody.GetComponentInParent<ShipFactory>();

@@ -5,19 +5,22 @@ namespace SpaceRTS.Models
 	/// <summary>
 	/// Represents a ship in the game, which can be selected, moved to a destination system body, and visualized with a path line.
 	/// </summary>
-	public class Ship : SelectableObject
+    [RequireComponent(typeof(SelectableComponent))]
+    public class Ship : MonoBehaviour
     {
 		[SerializeField] private Color pathLineColour = new Color(0.1f, 1, 0.1f, 0.5f);
 
 		private LineRenderer path;
         private SystemBody destinationBody;
+        private SelectableComponent selectable;
 
         public SystemBody CurrentSystemBody { get; set; }
 
         private void Awake()
         {
-			// Configure the selection outline and ship path line on awake
-			this.ConfigureSelectionOutline(1f);
+            // Configure the selection outline for the ship on awake
+			this.selectable = this.GetComponent<SelectableComponent>();
+            this.selectable.ConfigureSelectionOutline(1f);
             this.ConfigureShipPathLine();
         }
 
@@ -51,6 +54,9 @@ namespace SpaceRTS.Models
 			this.path.forceRenderingOff = true;
 		}
 
+        /// <summary>
+        /// Configures the LineRenderer component for the ship's path line visualization.
+        /// </summary>
         private void ConfigureShipPathLine()
         {
 			// Configure the LineRenderer component for the ship's path line visualization
