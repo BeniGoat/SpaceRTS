@@ -2,7 +2,11 @@ using UnityEngine;
 
 namespace SpaceRTS.Models
 {
-    
+    /// <summary>
+    /// Represents a celestial body in the star system, such as a planet or moon.
+    /// It holds properties for orbital distance and size, and provides methods
+    /// to configure its visual representation in the game world.
+    /// </summary>
     [RequireComponent(typeof(SelectableComponent))]
     public class SystemBody : MonoBehaviour
     {

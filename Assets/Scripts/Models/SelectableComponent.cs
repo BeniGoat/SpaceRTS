@@ -5,7 +5,7 @@ namespace SpaceRTS.Models
 {
 	/// <summary>
 	/// Represents a selectable component in the game world. It implements the ISelectable interface and
-	///  provides functionality for managing selection state and configuring the visual outline of the object.
+	/// provides functionality for managing selection state and configuring the visual outline of the object.
 	/// The component requires an Outline component to be attached to the same GameObject for visualizing selection.
 	/// </summary>
 	[DisallowMultipleComponent]

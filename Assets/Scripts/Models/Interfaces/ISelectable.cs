@@ -2,7 +2,7 @@ namespace SpaceRTS.Models.Interfaces
 {
     /// <summary>
     /// Defines the interface for selectable objects in the game world.
-    ///  It provides properties and methods to manage the selection state and configure the visual outline of the object.
+    /// It provides properties and methods to manage the selection state and configure the visual outline of the object.
     /// </summary>
     public interface ISelectable
     {
