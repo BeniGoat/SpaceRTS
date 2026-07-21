@@ -26,12 +26,12 @@ namespace SpaceRTS.Managers
 
 		private void OnEnable()
 		{
-			GameSpeedInputHandler.OnGameSpeedInput += this.HandleSpeedInput;
+			GameSpeedInputManager.OnGameSpeedChanged += this.HandleSpeedInput;
 		}
 
 		private void OnDisable()
 		{
-			GameSpeedInputHandler.OnGameSpeedInput -= this.HandleSpeedInput;
+			GameSpeedInputManager.OnGameSpeedChanged -= this.HandleSpeedInput;
 		}
 
 		private void Start()

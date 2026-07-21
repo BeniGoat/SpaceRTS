@@ -3,11 +3,13 @@ using UnityEngine;
 
 namespace SpaceRTS.Models
 {
-	/// <summary>
-	/// Represents a planet in the star system. Holds its body reference and configuration.
-	/// Moon spawning is handled externally by the <see cref="SystemBodyFactory"/> attached to this GameObject.
+    /// <summary>
+    /// Represents a planet in the star system. Holds its body reference and configuration.
+    /// Moon spawning is handled externally by the <see cref="SystemBodyFactory"/> attached to this GameObject.
     /// </summary>
-	public class Planet : MonoBehaviour
+    [RequireComponent(typeof(SystemBodyFactory))]
+    [RequireComponent(typeof(MoonFactory))]
+    public class Planet : MonoBehaviour
     {
 		public SystemBody Body { get; private set; }
 

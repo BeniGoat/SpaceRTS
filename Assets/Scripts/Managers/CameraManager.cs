@@ -7,7 +7,8 @@ namespace SpaceRTS.Managers
 {
     public class CameraManager : MonoBehaviour
     {
-        [Header("Camera Offset")]
+        [Header("Camera Settings")]
+        [SerializeField] private Camera cam;
 		[SerializeField] private float cameraOffsetY;
 		[SerializeField] private float cameraOffsetZ;
 
@@ -24,6 +25,7 @@ namespace SpaceRTS.Managers
 		[SerializeField] private Vector2 maxBounds;
 		[SerializeField] private float minVerticalAngle = 10f;
 		[SerializeField] private float maxVerticalAngle = 80f;
+		
 
 		private const float DistanceScaleFactor = 0.005f;
 		private const float ZoomMultiplier = 10f;
@@ -31,13 +33,48 @@ namespace SpaceRTS.Managers
 		private IZoomStrategy zoomStrategy;
         private Vector3 frameMove;
         private float frameLateralRotate, frameVerticalRotate, frameZoom;
-        private Camera cam;
         private Transform target;
         private Vector3 movementVelocity = Vector3.zero;
 
         private void Awake()
         {
-            this.cam = this.GetComponentInChildren<Camera>();           
+            this.ResolveCamera();
+        }
+
+		/// <summary>
+		/// Resolves the camera reference. If the camera is not assigned, it attempts to
+		/// find a Camera component in the children of this GameObject or the main camera in the scene.
+		/// If no camera is found, it creates a new camera GameObject and attaches a Camera component to it.
+		/// </summary>
+        private void ResolveCamera()
+        {
+			// Attempt to find the camera in the children of this GameObject
+            if (this.cam == null)
+            {
+                this.cam = this.GetComponentInChildren<Camera>(true);
+            }
+
+			// If no camera is found, try to find the main camera in the scene
+            if (this.cam == null)
+            {
+                this.cam = Camera.main;
+            }
+
+			// If still no camera is found, create a new camera GameObject and attach a Camera component to it
+            if (this.cam == null)
+            {
+                GameObject cameraObject = new("MainCamera");
+                cameraObject.transform.SetParent(this.transform, false);
+                this.cam = cameraObject.AddComponent<Camera>();
+                cameraObject.tag = "MainCamera";
+            }
+
+			// Ensure the camera is a child of this GameObject and reset its local position and rotation
+            if (this.cam.transform.parent != this.transform)
+            {
+                this.cam.transform.SetParent(this.transform, false);
+                this.cam.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            }
         }
 
         private void OnEnable()
@@ -73,6 +110,8 @@ namespace SpaceRTS.Managers
 		/// <param name="range">The range for the camera movement bounds.</param>
 		public void SetCamera(CameraMode cameraMode, float range)
         {
+			this.ResolveCamera();
+
 			this.zoomStrategy = cameraMode switch
 			{
 				CameraMode.Perspective => new PerspectiveZoomStrategy(this.cam, this.cameraOffsetY, this.cameraOffsetZ),

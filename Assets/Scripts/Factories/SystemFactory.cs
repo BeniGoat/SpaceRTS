@@ -34,14 +34,14 @@ namespace SpaceRTS.Factories
 			float minOrbitalDistance = sun.transform.localScale.x;
 
 			// Calculate orbital distances
-			int numPlanets = Random.Range(this.minPlanets, this.maxPlanets + 1);
+			int numPlanets = UnityEngine.Random.Range(this.minPlanets, this.maxPlanets + 1);
 			List<float> orbitalDistances = this.CalculateOrbitalDistances(numPlanets, minOrbitalDistance);
 
 			// Spawn planets
 			for (int i = 0; i < numPlanets; i++)
 			{
 				// Determine a random size for the planet within the specified range
-				float planetSize = Random.Range(this.minPlanetSize, this.maxPlanetSize + 1) * 0.1f;
+				float planetSize = UnityEngine.Random.Range(this.minPlanetSize, this.maxPlanetSize + 1) * 0.1f;
 				Planet planet = Instantiate(this.planetPrefab);
 				planet.Initialise(i + 1, orbitalDistances[i], planetSize);
 			}
@@ -63,7 +63,7 @@ namespace SpaceRTS.Factories
 			// Calculate orbital distances for each planet, ensuring they are spaced apart by a random separation distance
 			for (int i = 0; i < count; i++)
 			{
-				float separation = Random.Range(this.minOrbitalSeparation, this.maxOrbitalSeparation);
+				float separation = UnityEngine.Random.Range(this.minOrbitalSeparation, this.maxOrbitalSeparation);
 
 				if (i == 0)
 					distances.Add(minDistance + (separation * 0.5f));
