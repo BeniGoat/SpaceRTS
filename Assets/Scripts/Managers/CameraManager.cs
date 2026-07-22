@@ -174,13 +174,15 @@ namespace SpaceRTS.Managers
 		{
 			if (this.frameMove == Vector3.zero) return;
 
-			float speed = this.moveSpeed * this.GetCameraDistanceFactor();
-			Vector3 scaledMove = new Vector3(
-				this.frameMove.x * speed,
-				this.frameMove.y,
-				this.frameMove.z * speed);
+            // Prevent faster diagonal movement if multiple inputs are combined
+            Vector3 input = this.frameMove;
+            if (input.sqrMagnitude > 1f) input.Normalize();
 
-			this.transform.position += this.transform.TransformDirection(scaledMove) * Time.unscaledDeltaTime;
+            // Scale the movement by moveSpeed and the camera's distance factor
+            float speed = this.moveSpeed * this.GetCameraDistanceFactor();
+			Vector3 scaledMove = new Vector3(input.x * speed, input.y, input.z * speed);
+
+            this.transform.position += this.transform.TransformDirection(scaledMove) * Time.unscaledDeltaTime;
 			this.LockPositionInBounds();
 			this.frameMove = Vector3.zero;
 
@@ -198,11 +200,20 @@ namespace SpaceRTS.Managers
 		{
 			if (this.frameLateralRotate == 0f) return;
 
-			this.transform.RotateAround(
-				this.transform.position,
-				this.transform.up,
-				this.frameLateralRotate * this.rotateSpeed * Time.unscaledDeltaTime);
-			this.frameLateralRotate = 0f;
+            // Compute desired yaw delta and apply smoothly
+            float yawDelta = this.frameLateralRotate * this.rotateSpeed * Time.unscaledDeltaTime;
+            Quaternion targetRotation = Quaternion.AngleAxis(yawDelta, this.transform.up) * this.transform.rotation;
+
+            // Smooth fraction can be tuned; using Slerp yields smoother feel
+            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, 0.6f);
+
+            this.frameLateralRotate = 0f;
+
+   //         this.transform.RotateAround(
+			//	this.transform.position,
+			//	this.transform.up,
+			//	this.frameLateralRotate * this.rotateSpeed * Time.unscaledDeltaTime);
+			//this.frameLateralRotate = 0f;
 		}
 
 		/// <summary>

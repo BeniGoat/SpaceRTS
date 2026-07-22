@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace SpaceRTS.Inputs
 {
@@ -22,6 +23,9 @@ namespace SpaceRTS.Inputs
         private void Update()
         {
             this.mousePos = Input.mousePosition;
+
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
 
             // Create a 5% buffer around the screen beyond which it won't control the camera
             bool isMouseValid =

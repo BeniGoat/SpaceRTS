@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace SpaceRTS.Inputs
 {
@@ -12,6 +13,9 @@ namespace SpaceRTS.Inputs
 
         private void Update()
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
             // Check if WASD keys are being pressed
             if (Input.GetKey(KeyCode.W))
             {

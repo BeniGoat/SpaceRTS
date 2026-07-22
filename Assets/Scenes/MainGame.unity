@@ -132,6 +132,10 @@ PrefabInstance:
       value: MainCamera
       objectReference: {fileID: 0}
     - target: {fileID: 2920994145222125147, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+      propertyPath: cameraMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2920994145222125147, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
       propertyPath: keyboardInputManager
       value: 
       objectReference: {fileID: 271911543021076507}
