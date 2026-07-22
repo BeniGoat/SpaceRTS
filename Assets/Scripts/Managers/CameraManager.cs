@@ -9,28 +9,27 @@ namespace SpaceRTS.Managers
     {
         [Header("Camera Settings")]
         [SerializeField] private Camera cam;
-		[SerializeField] private float cameraOffsetY;
-		[SerializeField] private float cameraOffsetZ;
+		[SerializeField] private float cameraOffsetY;           // Vertical offset of the camera from the target position.
+        [SerializeField] private float cameraOffsetZ;			// Depth offset of the camera from the target position.
 
         [Header("Move Controls")]
-		[SerializeField] private float moveSpeed = 100f;
-		[SerializeField] private float rotateSpeed = 100f;
-		[SerializeField] private float smoothTime = 0.1f;
+		[SerializeField] private float moveSpeed = 100f;        // Speed at which the camera moves in the scene.
+        [SerializeField] private float rotateSpeed = 100f;      // Speed at which the camera rotates around its axes.
+        [SerializeField] private float smoothTime = 0.1f;       // Time it takes for the camera to smoothly reach its target position when following a target.
 
-		[Header("Zoom Controls")]
-		[SerializeField] private float zoomSpeed = 100f;
+        [Header("Zoom Controls")]
+		[SerializeField] private float zoomSpeed = 100f;		// Speed at which the camera zooms in and out.
+        [SerializeField] private float zoomMultiplier = 10f;	// Multiplier to adjust the zoom speed for finer control.
 
         [Header("Move Bounds")]
-		[SerializeField] private Vector2 minBounds;
-		[SerializeField] private Vector2 maxBounds;
-		[SerializeField] private float minVerticalAngle = 10f;
-		[SerializeField] private float maxVerticalAngle = 80f;
-		
+		[SerializeField] private Vector2 minBounds;             // Minimum bounds for camera movement in the scene (x, z).
+        [SerializeField] private Vector2 maxBounds;             // Maximum bounds for camera movement in the scene (x, z).
+        [SerializeField] private float minVerticalAngle = 10f;  // Minimum vertical angle for camera rotation (in degrees).
+        [SerializeField] private float maxVerticalAngle = 80f;	// Maximum vertical angle for camera rotation (in degrees).
 
-		private const float DistanceScaleFactor = 0.005f;
-		private const float ZoomMultiplier = 10f;
+        private const float DistanceScaleFactor = 0.005f;       // Constant factor to scale movement and zoom speed based on camera distance.
 
-		private IZoomStrategy zoomStrategy;
+        private IZoomStrategy zoomStrategy;
         private Vector3 frameMove;
         private float frameLateralRotate, frameVerticalRotate, frameZoom;
         private Transform target;
@@ -233,7 +232,7 @@ namespace SpaceRTS.Managers
 		{
 			if (this.frameZoom == 0f || this.zoomStrategy == null) return;
 
-			float speed = this.zoomSpeed * this.GetCameraDistanceFactor() * ZoomMultiplier;
+			float speed = this.zoomSpeed * this.GetCameraDistanceFactor() * this.zoomMultiplier;
 			float delta = Mathf.Abs(this.frameZoom) * speed * Time.unscaledDeltaTime;
 
 			if (this.frameZoom > 0f)
