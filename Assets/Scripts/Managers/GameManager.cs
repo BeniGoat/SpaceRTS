@@ -1,4 +1,5 @@
 using SpaceRTS.Factories;
+using SpaceRTS.Inputs;
 using SpaceRTS.Managers.Enums;
 using UnityEngine;
 
@@ -19,8 +20,10 @@ namespace SpaceRTS.Managers
 		[SerializeField] private MovementManager movementManager;
 		[SerializeField] private SelectionManager selectionManager;
 		[SerializeField] private TimeScaleManager timeScaleManager;
+        [SerializeField] private KeyboardInputManager keyboardInputManager;
+        [SerializeField] private MouseInputManager mouseInputManager;
 
-		[Header("Settings")]
+        [Header("Settings")]
 		[SerializeField] private CameraMode cameraMode = CameraMode.Perspective;
 
 		private void Start()
@@ -29,7 +32,7 @@ namespace SpaceRTS.Managers
 			float systemSize = this.systemFactory.Initialise();
 
 			// Initialize camera with system bounds
-			this.cameraManager.SetCamera(this.cameraMode, systemSize);
+			this.cameraManager.SetCamera(this.cameraMode, (int)Mathf.Ceil(systemSize));
 		}
 	}
 }

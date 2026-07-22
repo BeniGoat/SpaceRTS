@@ -8,7 +8,7 @@ namespace SpaceRTS.Inputs
         public static event MoveInputHandler OnMoveInput;
         public static event RotateLateralInputHandler OnRotateLateralInput;
         public static event RotateVerticalInputHandler OnRotateVerticalInput;
-        public static event ZoomInputManager OnZoomInput;
+        public static event ZoomInputHandler OnZoomInput;
 
         private void Update()
         {

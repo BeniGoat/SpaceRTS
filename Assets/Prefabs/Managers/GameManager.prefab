@@ -35,6 +35,8 @@ Transform:
   - {fileID: 4120898497767758732}
   - {fileID: 374666353127477544}
   - {fileID: 4594515610819622677}
+  - {fileID: 7200215775208714592}
+  - {fileID: 5148557137273712504}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2920994145222125147
@@ -50,11 +52,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.GameManager
   systemFactory: {fileID: 8750308976947553046, guid: 9d668ce64eeef4e45a0ef952da8cb457, type: 3}
-  cameraManager: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
-  commandManager: {fileID: 7905679419557287119, guid: 574f5fd9102afbf498585bef6a153b65, type: 3}
-  movementManager: {fileID: 3928279636218343227, guid: 6a2ed45509407ab48a2137a3ac6200e6, type: 3}
-  selectionManager: {fileID: 6410789755679324197, guid: 4eefd07e36d838649a78d3cb33e3e48c, type: 3}
-  timeScaleManager: {fileID: 7425233840469126432, guid: 72e901a394bf0174e90285fe62df3d73, type: 3}
+  cameraManager: {fileID: 8727327647677082433}
+  commandManager: {fileID: 7568457949265787864}
+  movementManager: {fileID: 8947394877796788069}
+  selectionManager: {fileID: 7318318138068471343}
+  timeScaleManager: {fileID: 2910945866826361703}
+  keyboardInputManager: {fileID: 8574421758655192807}
+  mouseInputManager: {fileID: 418701462087830694}
   cameraMode: 0
 --- !u!1001 &341725929219026711
 PrefabInstance:
@@ -118,6 +122,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3699574142106196785, guid: 574f5fd9102afbf498585bef6a153b65, type: 3}
   m_PrefabInstance: {fileID: 341725929219026711}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7568457949265787864 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7905679419557287119, guid: 574f5fd9102afbf498585bef6a153b65, type: 3}
+  m_PrefabInstance: {fileID: 341725929219026711}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f71903a8135c0549acc7fd2b5ec0c9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.CommandManager
 --- !u!1001 &1454353154152834048
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -153,6 +168,26 @@ PrefabInstance:
     - target: {fileID: 4727432958754149996, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
       propertyPath: m_Name
       value: CameraManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
+      propertyPath: maxBounds.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
+      propertyPath: maxBounds.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
+      propertyPath: minBounds.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
+      propertyPath: minBounds.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8106839131378257729, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -203,6 +238,90 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8106839131378257729, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
   m_PrefabInstance: {fileID: 1454353154152834048}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8727327647677082433 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
+  m_PrefabInstance: {fileID: 1454353154152834048}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f96ec11d760f5f7499075a500b34e94a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.CameraManager
+--- !u!1001 &2545540549071723426
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4089060043549180983}
+    m_Modifications:
+    - target: {fileID: 5072928422805275056, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_Name
+      value: MouseInputManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+--- !u!114 &418701462087830694 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2782122200162588420, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+  m_PrefabInstance: {fileID: 2545540549071723426}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f52f29c42fed28843874c69a0c4cab67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Inputs.MouseInputManager
+--- !u!4 &5148557137273712504 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7214989616368432346, guid: b13a13e51495b8f4dba36ce678aed090, type: 3}
+  m_PrefabInstance: {fileID: 2545540549071723426}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4429379034788673034
 PrefabInstance:
@@ -266,6 +385,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4056412664322090786, guid: 4eefd07e36d838649a78d3cb33e3e48c, type: 3}
   m_PrefabInstance: {fileID: 4429379034788673034}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7318318138068471343 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6410789755679324197, guid: 4eefd07e36d838649a78d3cb33e3e48c, type: 3}
+  m_PrefabInstance: {fileID: 4429379034788673034}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 030d8c01ac574be4dac9abf26052d907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.SelectionManager
 --- !u!1001 &5381667106310572126
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -328,6 +458,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8331618499351319506, guid: 6a2ed45509407ab48a2137a3ac6200e6, type: 3}
   m_PrefabInstance: {fileID: 5381667106310572126}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8947394877796788069 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3928279636218343227, guid: 6a2ed45509407ab48a2137a3ac6200e6, type: 3}
+  m_PrefabInstance: {fileID: 5381667106310572126}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 527fa973d32359d488fe573aa9174cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.MovementManager
 --- !u!1001 &5723647423005099591
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -385,8 +526,92 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 72e901a394bf0174e90285fe62df3d73, type: 3}
+--- !u!114 &2910945866826361703 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7425233840469126432, guid: 72e901a394bf0174e90285fe62df3d73, type: 3}
+  m_PrefabInstance: {fileID: 5723647423005099591}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0998ac492d8f6c438c8e1580a24229d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.TimeScaleManager
 --- !u!4 &4594515610819622677 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8119010031546888530, guid: 72e901a394bf0174e90285fe62df3d73, type: 3}
   m_PrefabInstance: {fileID: 5723647423005099591}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8788619113703883180
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4089060043549180983}
+    m_Modifications:
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4215348725874989432, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+      propertyPath: m_Name
+      value: KeyboardInputManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+--- !u!4 &7200215775208714592 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1881163911982346444, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+  m_PrefabInstance: {fileID: 8788619113703883180}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8574421758655192807 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -8139968614842065077, guid: 741b6db055beee049a2da583ebd92178, type: 3}
+  m_PrefabInstance: {fileID: 8788619113703883180}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30835f86f161f844789c3715ab67e1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Inputs.KeyboardInputManager

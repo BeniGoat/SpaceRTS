@@ -7,6 +7,6 @@ namespace SpaceRTS.Inputs
         public delegate void MoveInputHandler(Vector3 moveVector);
         public delegate void RotateLateralInputHandler(float rotateAmount);
         public delegate void RotateVerticalInputHandler(float rotateAmount);
-        public delegate void ZoomInputManager(float zoomAmount);
+        public delegate void ZoomInputHandler(float zoomAmount);
     }
 }

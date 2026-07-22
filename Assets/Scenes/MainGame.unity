@@ -127,30 +127,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1278244494106036778, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 10
+    - target: {fileID: 660843421058040521, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+      propertyPath: m_TagString
+      value: MainCamera
       objectReference: {fileID: 0}
-    - target: {fileID: 1278244494106036778, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1278244494106036778, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.8660254
-      objectReference: {fileID: 0}
-    - target: {fileID: 1278244494106036778, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1278244494106036778, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1278244494106036778, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
+    - target: {fileID: 2920994145222125147, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+      propertyPath: keyboardInputManager
+      value: 
+      objectReference: {fileID: 271911543021076507}
     - target: {fileID: 4089060043549180983, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -195,11 +179,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
+    - target: {fileID: 8727327647677082433, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8727327647677082433, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+      propertyPath: cameraOffsetY
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8727327647677082433, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+      propertyPath: cameraOffsetZ
+      value: -5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+--- !u!114 &271911543021076507 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8574421758655192807, guid: dea0e06a2fe45b74da2554cdaf90e49e, type: 3}
+  m_PrefabInstance: {fileID: 271911543021076505}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30835f86f161f844789c3715ab67e1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Inputs.KeyboardInputManager
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

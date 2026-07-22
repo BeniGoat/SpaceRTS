@@ -108,7 +108,7 @@ namespace SpaceRTS.Managers
 		/// </summary>
 		/// <param name="cameraMode">The desired camera mode.</param>
 		/// <param name="range">The range for the camera movement bounds.</param>
-		public void SetCamera(CameraMode cameraMode, float range)
+		public void SetCamera(CameraMode cameraMode, int range)
         {
 			this.ResolveCamera();
 
