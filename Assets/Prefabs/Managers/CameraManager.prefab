@@ -67,7 +67,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 30
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -189,6 +189,14 @@ MonoBehaviour:
   rotateSpeed: 100
   smoothTime: 0.1
   zoomSpeed: 100
+  zoomMultiplier: 10
+  currentZoomLevel: 0
+  perspectiveNearZoom: 5
+  perspectiveFarZoom: 80
+  perspectiveStartingZoom: 40
+  orthoNearZoom: 2
+  orthoFarZoom: 16
+  orthoStartingZoom: 8
   minBounds: {x: 0, y: 0}
   maxBounds: {x: 0, y: 0}
   minVerticalAngle: 10

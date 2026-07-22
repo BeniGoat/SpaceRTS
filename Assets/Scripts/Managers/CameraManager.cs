@@ -9,25 +9,36 @@ namespace SpaceRTS.Managers
     {
         [Header("Camera Settings")]
         [SerializeField] private Camera cam;
-		[SerializeField] private float cameraOffsetY;           // Vertical offset of the camera from the target position.
-        [SerializeField] private float cameraOffsetZ;			// Depth offset of the camera from the target position.
+		[SerializeField] private float cameraOffsetY;					// Vertical offset of the camera from the target position.
+        [SerializeField] private float cameraOffsetZ;					// Depth offset of the camera from the target position.
 
         [Header("Move Controls")]
-		[SerializeField] private float moveSpeed = 100f;        // Speed at which the camera moves in the scene.
-        [SerializeField] private float rotateSpeed = 100f;      // Speed at which the camera rotates around its axes.
-        [SerializeField] private float smoothTime = 0.1f;       // Time it takes for the camera to smoothly reach its target position when following a target.
+		[SerializeField] private float moveSpeed = 100f;				// Speed at which the camera moves in the scene.
+        [SerializeField] private float rotateSpeed = 100f;				// Speed at which the camera rotates around its axes.
+        [SerializeField] private float smoothTime = 0.1f;				// Time it takes for the camera to smoothly reach its target position when following a target.
 
         [Header("Zoom Controls")]
-		[SerializeField] private float zoomSpeed = 100f;		// Speed at which the camera zooms in and out.
-        [SerializeField] private float zoomMultiplier = 10f;	// Multiplier to adjust the zoom speed for finer control.
+		[SerializeField] private float zoomSpeed = 100f;				// Speed at which the camera zooms in and out.
+        [SerializeField] private float zoomMultiplier = 10f;			// Multiplier to adjust the zoom speed for finer control.
+        [SerializeField] private float currentZoomLevel;                // Current zoom level of the camera, used to determine the distance from the target.
+
+        [Header("Perspective Zoom Settings")]
+        [SerializeField] private float perspectiveNearZoom = 5f;		// Minimum distance for perspective camera zoom.
+        [SerializeField] private float perspectiveFarZoom = 80f;		// Maximum distance for perspective camera zoom.
+        [SerializeField] private float perspectiveStartingZoom = 40f;	// Starting distance for perspective camera zoom.
+
+        [Header("Orthographic Zoom Settings")]
+        [SerializeField] private float orthoNearZoom = 2f;				// Minimum orthographic size for orthographic camera zoom.
+        [SerializeField] private float orthoFarZoom = 16f;				// Maximum orthographic size for orthographic camera zoom.
+        [SerializeField] private float orthoStartingZoom = 8f;			// Starting orthographic size for orthographic camera zoom.
 
         [Header("Move Bounds")]
-		[SerializeField] private Vector2 minBounds;             // Minimum bounds for camera movement in the scene (x, z).
-        [SerializeField] private Vector2 maxBounds;             // Maximum bounds for camera movement in the scene (x, z).
-        [SerializeField] private float minVerticalAngle = 10f;  // Minimum vertical angle for camera rotation (in degrees).
-        [SerializeField] private float maxVerticalAngle = 80f;	// Maximum vertical angle for camera rotation (in degrees).
+		[SerializeField] private Vector2 minBounds;						// Minimum bounds for camera movement in the scene (x, z).
+        [SerializeField] private Vector2 maxBounds;						// Maximum bounds for camera movement in the scene (x, z).
+        [SerializeField] private float minVerticalAngle = 10f;			// Minimum vertical angle for camera rotation (in degrees).
+        [SerializeField] private float maxVerticalAngle = 80f;			// Maximum vertical angle for camera rotation (in degrees).
 
-        private const float DistanceScaleFactor = 0.005f;       // Constant factor to scale movement and zoom speed based on camera distance.
+        private const float DistanceScaleFactor = 0.005f;				// Constant factor to scale movement and zoom speed based on camera distance.
 
         private IZoomStrategy zoomStrategy;
         private Vector3 frameMove;
@@ -40,40 +51,17 @@ namespace SpaceRTS.Managers
             this.ResolveCamera();
         }
 
-		/// <summary>
-		/// Resolves the camera reference. If the camera is not assigned, it attempts to
-		/// find a Camera component in the children of this GameObject or the main camera in the scene.
-		/// If no camera is found, it creates a new camera GameObject and attaches a Camera component to it.
-		/// </summary>
-        private void ResolveCamera()
+        /// <summary>
+        /// Updates the camera's position, rotation, and zoom based on the accumulated frame inputs.
+        /// This method is called once per frame after all Update methods have been called.
+        /// </summary>
+        private void LateUpdate()
         {
-			// Attempt to find the camera in the children of this GameObject
-            if (this.cam == null)
-            {
-                this.cam = this.GetComponentInChildren<Camera>(true);
-            }
-
-			// If no camera is found, try to find the main camera in the scene
-            if (this.cam == null)
-            {
-                this.cam = Camera.main;
-            }
-
-			// If still no camera is found, create a new camera GameObject and attach a Camera component to it
-            if (this.cam == null)
-            {
-                GameObject cameraObject = new("MainCamera");
-                cameraObject.transform.SetParent(this.transform, false);
-                this.cam = cameraObject.AddComponent<Camera>();
-                cameraObject.tag = "MainCamera";
-            }
-
-			// Ensure the camera is a child of this GameObject and reset its local position and rotation
-            if (this.cam.transform.parent != this.transform)
-            {
-                this.cam.transform.SetParent(this.transform, false);
-                this.cam.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            }
+            this.HandleTargetFollow();
+            this.HandleMovement();
+            this.HandleLateralRotation();
+            this.HandleVerticalRotation();
+            this.HandleZoom();
         }
 
         private void OnEnable()
@@ -111,24 +99,80 @@ namespace SpaceRTS.Managers
         {
 			this.ResolveCamera();
 
-			this.zoomStrategy = cameraMode switch
-			{
-				CameraMode.Perspective => new PerspectiveZoomStrategy(this.cam, this.cameraOffsetY, this.cameraOffsetZ),
-				CameraMode.Orthographic => new OrthographicZoomStrategy(this.cam, this.cameraOffsetY, this.cameraOffsetZ),
-				_ => this.zoomStrategy
-			};
-			
-			this.maxBounds = new Vector2(range, range);
+            switch (cameraMode)
+            {
+                case CameraMode.Perspective:
+                    this.currentZoomLevel = this.perspectiveStartingZoom;
+                    this.zoomStrategy = new PerspectiveZoomStrategy(
+                        this.cam,
+                        this.cameraOffsetY,
+                        this.cameraOffsetZ,
+                        this.perspectiveNearZoom,
+                        this.perspectiveFarZoom,
+                        this.perspectiveStartingZoom);
+                    break;
+                case CameraMode.Orthographic:
+                    this.currentZoomLevel = this.orthoStartingZoom;
+                    this.zoomStrategy = new OrthographicZoomStrategy(
+                        this.cam,
+                        this.cameraOffsetY,
+                        this.cameraOffsetZ,
+                        this.orthoNearZoom,
+                        this.orthoFarZoom,
+                        this.orthoStartingZoom);
+                    break;
+                default:
+                    Debug.LogError($"Unsupported camera mode: {cameraMode}");
+                    return;
+            }
+
+            this.maxBounds = new Vector2(range, range);
 			this.minBounds = new Vector2(-range, -range);
 			this.cam.transform.LookAt(this.transform.position);
         }
 
-		/// <summary>
-		/// Sets the target Transform for the camera to follow. If a target is set,
+        /// <summary>
+        /// Resolves the camera reference. If the camera is not assigned, it attempts to
+        /// find a Camera component in the children of this GameObject or the main camera in the scene.
+        /// If no camera is found, it creates a new camera GameObject and attaches a Camera component to it.
+        /// </summary>
+        private void ResolveCamera()
+        {
+            // Attempt to find the camera in the children of this GameObject
+            if (this.cam == null)
+            {
+                this.cam = this.GetComponentInChildren<Camera>(true);
+            }
+
+            // If no camera is found, try to find the main camera in the scene
+            if (this.cam == null)
+            {
+                this.cam = Camera.main;
+            }
+
+            // If still no camera is found, create a new camera GameObject and attach a Camera component to it
+            if (this.cam == null)
+            {
+                GameObject cameraObject = new("MainCamera");
+                cameraObject.transform.SetParent(this.transform, false);
+                this.cam = cameraObject.AddComponent<Camera>();
+                cameraObject.tag = "MainCamera";
+            }
+
+            // Ensure the camera is a child of this GameObject and reset its local position and rotation
+            if (this.cam.transform.parent != this.transform)
+            {
+                this.cam.transform.SetParent(this.transform, false);
+                this.cam.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            }
+        }
+
+        /// <summary>
+        /// Sets the target Transform for the camera to follow. If a target is set,
         /// the camera will smoothly move towards the target's position each frame.
-		/// </summary>
-		/// <param name="newTarget">The Transform of the new target for the camera to follow.</param>
-		public void SetTarget(Transform newTarget)
+        /// </summary>
+        /// <param name="newTarget">The Transform of the new target for the camera to follow.</param>
+        public void SetTarget(Transform newTarget)
 		{
 			this.target = newTarget;
 		}
@@ -140,19 +184,6 @@ namespace SpaceRTS.Managers
 		/// <param name="position">The screen position from which to send the ray.</param>
 		/// <returns>A Ray starting from the camera and passing through the specified screen position.</returns>
 		public Ray SendRay(Vector3 position) => this.cam.ScreenPointToRay(position);
-
-		/// <summary>
-		/// Updates the camera's position, rotation, and zoom based on the accumulated frame inputs.
-        /// This method is called once per frame after all Update methods have been called.
-		/// </summary>
-		private void LateUpdate()
-        {
-			this.HandleTargetFollow();
-			this.HandleMovement();
-			this.HandleLateralRotation();
-			this.HandleVerticalRotation();
-			this.HandleZoom();
-		}
 
 		/// <summary>
 		/// Handles the camera's movement towards the target if a target is set.
@@ -208,12 +239,6 @@ namespace SpaceRTS.Managers
             this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, 0.6f);
 
             this.frameLateralRotate = 0f;
-
-   //         this.transform.RotateAround(
-			//	this.transform.position,
-			//	this.transform.up,
-			//	this.frameLateralRotate * this.rotateSpeed * Time.unscaledDeltaTime);
-			//this.frameLateralRotate = 0f;
 		}
 
 		/// <summary>
@@ -252,7 +277,15 @@ namespace SpaceRTS.Managers
 				this.zoomStrategy.ZoomOut(this.cam, delta);
 
 			this.frameZoom = 0f;
-		}
+
+            // Update inspector-visible zoom level
+            if (this.cam != null)
+            {
+                this.currentZoomLevel = this.cam.orthographic
+                    ? this.cam.orthographicSize
+                    : this.cam.transform.localPosition.magnitude;
+            }
+        }
 
 		/// <summary>
 		/// Calculates a scaling factor for camera movement and zoom based on the distance between the camera and its target.
