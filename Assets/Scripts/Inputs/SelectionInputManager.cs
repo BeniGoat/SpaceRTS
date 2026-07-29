@@ -23,10 +23,16 @@ namespace SpaceRTS.Inputs
 		{
 			// Check for left mouse button click (selection) 
 			if (Input.GetMouseButtonDown(0))
-				OnSelectInput?.Invoke(Input.mousePosition);
-			// Check for right mouse button click (command)
-			else if (Input.GetMouseButtonDown(1))
-				OnCommandInput?.Invoke(Input.mousePosition);
-		}
+            {
+				Debug.Log("Left mouse button clicked at position: " + Input.mousePosition);
+                OnSelectInput?.Invoke(Input.mousePosition);
+            }
+            // Check for right mouse button click (command)
+            else if (Input.GetMouseButtonDown(1))
+            {
+                Debug.Log("Right mouse button clicked at position: " + Input.mousePosition);
+                OnCommandInput?.Invoke(Input.mousePosition);
+            }
+        }
 	}
 }

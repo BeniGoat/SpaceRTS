@@ -23,6 +23,7 @@ namespace SpaceRTS.Managers
         [SerializeField] private KeyboardInputManager keyboardInputManager;
         [SerializeField] private MouseInputManager mouseInputManager;
         [SerializeField] private GameSpeedInputManager gameSpeedInputManager;
+		[SerializeField] private SelectionInputManager selectionInputManager;
 
         [Header("Settings")]
 		[SerializeField] private CameraMode cameraMode = CameraMode.Perspective;

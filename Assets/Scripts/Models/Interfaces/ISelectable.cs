@@ -17,5 +17,11 @@ namespace SpaceRTS.Models.Interfaces
         /// </summary>
         /// <param name="outlineWidth">The width of the outline effect.</param>
         void ConfigureSelectionOutline(float outlineWidth);
+        
+        /// <summary>
+        /// Gets the name of the selectable object.
+        /// </summary>
+        /// <returns>The name as a string.</returns>
+        string GetName();
     }
 }

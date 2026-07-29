@@ -12,15 +12,21 @@ namespace SpaceRTS.Models
     [RequireComponent(typeof(Outline))]
 	public class SelectableComponent : MonoBehaviour, ISelectable
     {
-		private bool isSelected;
-
-        private Outline outline;
-		
+		[SerializeField] private bool isSelected;
         [SerializeField] private Color maxColor = new Color32(170, 255, 255, 100);
         [SerializeField] private Color minColor = new Color32(150, 255, 255, 0);
 
-		/// <inheritdoc cref="ISelectable.IsSelected"/>
-		public bool IsSelected
+        private Outline outline;
+
+        /// <inheritdoc cref="ISelectable.GetName"/>
+		public string GetName()
+		{
+            // Return the name of the parent GameObject of this component's SystemBody
+            return this.gameObject.transform.parent.name;
+        }
+
+        /// <inheritdoc cref="ISelectable.IsSelected"/>
+        public bool IsSelected
 		{
 			get => this.isSelected;
 			set

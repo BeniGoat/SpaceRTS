@@ -7,9 +7,11 @@ namespace SpaceRTS.Managers
 {
     public class CameraManager : MonoBehaviour
     {
+        private Camera cam;
+        private bool cameraResolved = false;
+
         [Header("Camera Settings")]
-        [SerializeField] private Camera cam;
-		[SerializeField] private float cameraOffsetY;					// Vertical offset of the camera from the target position.
+        [SerializeField] private float cameraOffsetY;					// Vertical offset of the camera from the target position.
         [SerializeField] private float cameraOffsetZ;					// Depth offset of the camera from the target position.
 
         [Header("Move Controls")]
@@ -51,26 +53,13 @@ namespace SpaceRTS.Managers
             this.ResolveCamera();
         }
 
-        /// <summary>
-        /// Updates the camera's position, rotation, and zoom based on the accumulated frame inputs.
-        /// This method is called once per frame after all Update methods have been called.
-        /// </summary>
-        private void LateUpdate()
-        {
-            this.HandleTargetFollow();
-            this.HandleMovement();
-            this.HandleLateralRotation();
-            this.HandleVerticalRotation();
-            this.HandleZoom();
-        }
-
         private void OnEnable()
         {
-			// Subscribe to input events
-			KeyboardInputManager.OnMoveInput += this.UpdateFrameMove;
+            // Subscribe to input events
+            KeyboardInputManager.OnMoveInput += this.UpdateFrameMove;
             KeyboardInputManager.OnRotateLateralInput += this.UpdateFrameLateralRotate;
             KeyboardInputManager.OnRotateVerticalInput += this.UpdateFrameVerticalRotate;
-            KeyboardInputManager.OnZoomInput += this.UpdateFrameZoom; 
+            KeyboardInputManager.OnZoomInput += this.UpdateFrameZoom;
             MouseInputManager.OnMoveInput += this.UpdateFrameMove;
             MouseInputManager.OnRotateLateralInput += this.UpdateFrameLateralRotate;
             MouseInputManager.OnRotateVerticalInput += this.UpdateFrameVerticalRotate;
@@ -79,8 +68,8 @@ namespace SpaceRTS.Managers
 
         private void OnDisable()
         {
-			// Unsubscribe from input events
-			KeyboardInputManager.OnMoveInput -= this.UpdateFrameMove;
+            // Unsubscribe from input events
+            KeyboardInputManager.OnMoveInput -= this.UpdateFrameMove;
             KeyboardInputManager.OnRotateLateralInput -= this.UpdateFrameLateralRotate;
             KeyboardInputManager.OnRotateVerticalInput -= this.UpdateFrameVerticalRotate;
             KeyboardInputManager.OnZoomInput -= this.UpdateFrameZoom;
@@ -90,14 +79,21 @@ namespace SpaceRTS.Managers
             MouseInputManager.OnZoomInput -= this.UpdateFrameZoom;
         }
 
-		/// <summary>
-		/// Sets the camera mode (Perspective or Orthographic) and the movement bounds based on the provided range.
-		/// </summary>
-		/// <param name="cameraMode">The desired camera mode.</param>
-		/// <param name="range">The range for the camera movement bounds.</param>
-		public void SetCamera(CameraMode cameraMode, int range)
+        private void LateUpdate()
         {
-			this.ResolveCamera();
+            this.HandleTargetFollow();
+            this.HandleMovement();
+            this.HandleLateralRotation();
+            this.HandleVerticalRotation();
+            this.HandleZoom();
+        }
+
+        /// <summary>
+        /// Sets the camera mode (Perspective or Orthographic) and the movement bounds based on the provided range.
+        /// </summary>
+        public void SetCamera(CameraMode cameraMode, int range)
+        {
+            this.ResolveCamera();
 
             switch (cameraMode)
             {
@@ -127,8 +123,7 @@ namespace SpaceRTS.Managers
             }
 
             this.maxBounds = new Vector2(range, range);
-			this.minBounds = new Vector2(-range, -range);
-			this.cam.transform.LookAt(this.transform.position);
+            this.minBounds = new Vector2(-range, -range);
         }
 
         /// <summary>
@@ -138,6 +133,11 @@ namespace SpaceRTS.Managers
         /// </summary>
         private void ResolveCamera()
         {
+            if (this.cameraResolved)
+            {
+                return;
+            }
+
             // Attempt to find the camera in the children of this GameObject
             if (this.cam == null)
             {
@@ -165,45 +165,44 @@ namespace SpaceRTS.Managers
                 this.cam.transform.SetParent(this.transform, false);
                 this.cam.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             }
+
+            this.cameraResolved = true;
         }
 
         /// <summary>
         /// Sets the target Transform for the camera to follow. If a target is set,
         /// the camera will smoothly move towards the target's position each frame.
         /// </summary>
-        /// <param name="newTarget">The Transform of the new target for the camera to follow.</param>
         public void SetTarget(Transform newTarget)
-		{
-			this.target = newTarget;
-		}
+        {
+            this.target = newTarget;
+        }
 
-		/// <summary>
-		/// Sends a ray from the camera through the specified screen position. 
-        /// This can be used for raycasting to detect objects in the scene based on user input (e.g., mouse clicks).
-		/// </summary>
-		/// <param name="position">The screen position from which to send the ray.</param>
-		/// <returns>A Ray starting from the camera and passing through the specified screen position.</returns>
-		public Ray SendRay(Vector3 position) => this.cam.ScreenPointToRay(position);
+        /// <summary>
+        /// Sends a ray from the camera through the specified screen position.
+        /// </summary>
+        public Ray SendRay(Vector3 position) => this.cam.ScreenPointToRay(position);
 
-		/// <summary>
-		/// Handles the camera's movement towards the target if a target is set.
-		/// It smoothly moves the camera to the target's position using a damping function.
-		private void HandleTargetFollow()
-		{
-			if (this.target != null)
-			{
-				this.MoveToPosition(this.target.position);
-			}
-		}
+        /// <summary>
+        /// Handles the camera's movement towards the target if a target is set.
+        /// It smoothly moves the camera to the target's position using a damping function.
+        /// </summary>
+        private void HandleTargetFollow()
+        {
+            if (this.target != null)
+            {
+                this.MoveToPosition(this.target.position);
+            }
+        }
 
-		/// <summary>
-		/// Handles the camera's movement based on the accumulated frameMove vector.
+        /// <summary>
+        /// Handles the camera's movement based on the accumulated frameMove vector.
         /// It scales the movement by the moveSpeed and the camera's distance factor,
         /// applies the movement in the camera's local space, and ensures the camera stays within defined bounds.
-		/// </summary>
-		private void HandleMovement()
-		{
-			if (this.frameMove == Vector3.zero) return;
+        /// </summary>
+        private void HandleMovement()
+        {
+            if (this.frameMove == Vector3.zero) return;
 
             // Prevent faster diagonal movement if multiple inputs are combined
             Vector3 input = this.frameMove;
@@ -211,25 +210,25 @@ namespace SpaceRTS.Managers
 
             // Scale the movement by moveSpeed and the camera's distance factor
             float speed = this.moveSpeed * this.GetCameraDistanceFactor();
-			Vector3 scaledMove = new Vector3(input.x * speed, input.y, input.z * speed);
+            Vector3 scaledMove = new Vector3(input.x * speed, input.y, input.z * speed);
 
             this.transform.position += this.transform.TransformDirection(scaledMove) * Time.unscaledDeltaTime;
-			this.LockPositionInBounds();
-			this.frameMove = Vector3.zero;
+            this.LockPositionInBounds();
+            this.frameMove = Vector3.zero;
 
-			if (this.target != null)
-			{
-				this.SetTarget(null);
-			}
-		}
+            if (this.target != null)
+            {
+                this.SetTarget(null);
+            }
+        }
 
-		/// <summary>
-		/// Handles the camera's lateral rotation based on the accumulated frameLateralRotate value.
-		/// It rotates the camera around its up axis by the specified amount, scaled by rotateSpeed and deltaTime.
-		/// </summary>
-		private void HandleLateralRotation()
-		{
-			if (this.frameLateralRotate == 0f) return;
+        /// <summary>
+        /// Handles the camera's lateral rotation based on the accumulated frameLateralRotate value.
+        /// It rotates the camera around its up axis by the specified amount, scaled by rotateSpeed and deltaTime.
+        /// </summary>
+        private void HandleLateralRotation()
+        {
+            if (this.frameLateralRotate == 0f) return;
 
             // Compute desired yaw delta and apply smoothly
             float yawDelta = this.frameLateralRotate * this.rotateSpeed * Time.unscaledDeltaTime;
@@ -239,44 +238,54 @@ namespace SpaceRTS.Managers
             this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetRotation, 0.6f);
 
             this.frameLateralRotate = 0f;
-		}
+        }
 
-		/// <summary>
-		/// Handles the camera's vertical rotation based on the accumulated frameVerticalRotate value.
-		/// It calculates the new angle, clamps it within the defined min and max vertical angles,
-		/// and rotates the camera around its right axis by the clamped amount.
-		/// </summary>
-		private void HandleVerticalRotation()
-		{
-			if (this.frameVerticalRotate == 0f) return;
+        /// <summary>
+        /// Handles the camera's vertical rotation based on the accumulated frameVerticalRotate value.
+        /// It calculates the new angle, clamps it within the defined min and max vertical angles,
+        /// and rotates the camera around its right axis by the clamped amount.
+        /// </summary>
+        private void HandleVerticalRotation()
+        {
+            if (this.frameVerticalRotate == 0f) return;
 
-			float rotationAmount = this.frameVerticalRotate * this.rotateSpeed * Time.unscaledDeltaTime;
-			float currentAngle = this.cam.transform.eulerAngles.x;
-			float newAngle = Mathf.Clamp(currentAngle + rotationAmount, this.minVerticalAngle, this.maxVerticalAngle);
-			float clampedAmount = newAngle - currentAngle;
+            float rotationAmount = this.frameVerticalRotate * this.rotateSpeed * Time.unscaledDeltaTime;
 
-			this.cam.transform.RotateAround(this.transform.position, this.transform.right, clampedAmount);
-			this.frameVerticalRotate = 0f;
-		}
+            // Rotate the camera around its local X axis (pitch), not world space
+            this.cam.transform.Rotate(-rotationAmount, 0, 0, Space.Self);
 
-		/// <summary>
-		/// Handles the camera's zoom based on the accumulated frameZoom value.
-		/// It calculates the zoom delta, applies it using the current zoom strategy (Perspective or Orthographic),
-		/// and resets the frameZoom value for the next frame.
-		/// </summary>
-		private void HandleZoom()
-		{
-			if (this.frameZoom == 0f || this.zoomStrategy == null) return;
+            // Clamp the rotation to min/max angles
+            float currentAngle = this.cam.transform.localEulerAngles.x;
+            if (currentAngle > 180) currentAngle -= 360;
+            currentAngle = Mathf.Clamp(currentAngle, this.minVerticalAngle, this.maxVerticalAngle);
 
-			float speed = this.zoomSpeed * this.GetCameraDistanceFactor() * this.zoomMultiplier;
-			float delta = Mathf.Abs(this.frameZoom) * speed * Time.unscaledDeltaTime;
+            // Apply the clamped angle while preserving Y and Z rotations
+            this.cam.transform.localRotation = Quaternion.Euler(currentAngle,
+                this.cam.transform.localEulerAngles.y,
+                this.cam.transform.localEulerAngles.z);
 
-			if (this.frameZoom > 0f)
-				this.zoomStrategy.ZoomIn(this.cam, delta);
-			else
-				this.zoomStrategy.ZoomOut(this.cam, delta);
+            // Reset the frameVerticalRotate for the next frame
+            this.frameVerticalRotate = 0f;
+        }
 
-			this.frameZoom = 0f;
+        /// <summary>
+        /// Handles the camera's zoom based on the accumulated frameZoom value.
+        /// It calculates the zoom delta, applies it using the current zoom strategy (Perspective or Orthographic),
+        /// and resets the frameZoom value for the next frame.
+        /// </summary>
+        private void HandleZoom()
+        {
+            if (this.frameZoom == 0f || this.zoomStrategy == null) return;
+
+            float speed = this.zoomSpeed * this.GetCameraDistanceFactor() * this.zoomMultiplier;
+            float delta = Mathf.Abs(this.frameZoom) * speed * Time.unscaledDeltaTime;
+
+            if (this.frameZoom > 0f)
+                this.zoomStrategy.ZoomIn(this.cam, delta);
+            else
+                this.zoomStrategy.ZoomOut(this.cam, delta);
+
+            this.frameZoom = 0f;
 
             // Update inspector-visible zoom level
             if (this.cam != null)
@@ -287,18 +296,18 @@ namespace SpaceRTS.Managers
             }
         }
 
-		/// <summary>
-		/// Calculates a scaling factor for camera movement and zoom based on the distance between the camera and its target.
-		/// This factor is used to ensure consistent movement speed and zoom behavior regardless of the camera's distance from the target.
-		/// </summary>
-		/// <returns>The scaling factor based on the camera's distance from its target.</returns>
-		private float GetCameraDistanceFactor() => (this.cam.transform.position - this.transform.position).magnitude * DistanceScaleFactor;
+        /// <summary>
+        /// Calculates a scaling factor for camera movement and zoom based on the distance between the camera and its target.
+        /// This factor is used to ensure consistent movement speed and zoom behavior regardless of the camera's distance from the target.
+        /// </summary>
+        /// <returns>The scaling factor based on the camera's distance from its target.</returns>
+        private float GetCameraDistanceFactor() => (this.cam.transform.position - this.transform.position).magnitude * DistanceScaleFactor;
 
-		/// <summary>
-		/// Locks the camera's position within the defined min and max bounds. It clamps the camera's x and z
-		/// coordinates to ensure it stays within the specified area, while keeping the y coordinate unchanged.
-		/// </summary>
-		private void LockPositionInBounds()
+        /// <summary>
+        /// Locks the camera's position within the defined min and max bounds. It clamps the camera's x and z
+        /// coordinates to ensure it stays within the specified area, while keeping the y coordinate unchanged.
+        /// </summary>
+        private void LockPositionInBounds()
         {
             this.transform.position = new Vector3(
                 Mathf.Clamp(this.transform.position.x, this.minBounds.x, this.maxBounds.x),
@@ -306,48 +315,48 @@ namespace SpaceRTS.Managers
                 Mathf.Clamp(this.transform.position.z, this.minBounds.y, this.maxBounds.y));
         }
 
-		/// <summary>
-		/// Moves the camera smoothly to the specified new position using a damping function.
-		/// This creates a smooth transition effect when the camera moves to a new location.
-		/// </summary>
-		/// <param name="newPosition">The target position to move the camera to.</param>
-		private void MoveToPosition(Vector3 newPosition)
+        /// <summary>
+        /// Moves the camera smoothly to the specified new position using a damping function.
+        /// This creates a smooth transition effect when the camera moves to a new location.
+        /// </summary>
+        /// <param name="newPosition">The target position to move the camera to.</param>
+        private void MoveToPosition(Vector3 newPosition)
         {
-			this.transform.position = Vector3.SmoothDamp(
-				this.transform.position,
-				newPosition,
-				ref this.movementVelocity,
-				this.smoothTime,
-				Mathf.Infinity,
-				Time.unscaledDeltaTime);
-		}
+            this.transform.position = Vector3.SmoothDamp(
+                this.transform.position,
+                newPosition,
+                ref this.movementVelocity,
+                this.smoothTime,
+                Mathf.Infinity,
+                Time.unscaledDeltaTime);
+        }
 
-		/// <summary>
-		/// Updates the frameMove vector based on user input. This method is called when movement input is received,
-		/// and it accumulates the movement vector for processing in the LateUpdate method.
-		/// </summary>
-		/// <param name="moveVector">The movement vector to add to the frameMove.</param>
-		private void UpdateFrameMove(Vector3 moveVector) => this.frameMove += moveVector;
+        /// <summary>
+        /// Updates the frameMove vector based on user input. This method is called when movement input is received,
+        /// and it accumulates the movement vector for processing in the LateUpdate method.
+        /// </summary>
+        /// <param name="moveVector">The movement vector to add to the frameMove.</param>
+        private void UpdateFrameMove(Vector3 moveVector) => this.frameMove += moveVector;
 
-		/// <summary>
-		/// Updates the frameLateralRotate value based on user input. This method is called when lateral rotation input is received,
-		/// and it accumulates the rotation amount for processing in the LateUpdate method.
-		/// </summary>
-		/// <param name="amount">The rotation amount to add to the frameLateralRotate.</param>
-		private void UpdateFrameLateralRotate(float amount) => this.frameLateralRotate += amount;
+        /// <summary>
+        /// Updates the frameLateralRotate value based on user input. This method is called when lateral rotation input is received,
+        /// and it accumulates the rotation amount for processing in the LateUpdate method.
+        /// </summary>
+        /// <param name="amount">The rotation amount to add to the frameLateralRotate.</param>
+        private void UpdateFrameLateralRotate(float amount) => this.frameLateralRotate += amount;
 
-		/// <summary>
-		/// Updates the frameVerticalRotate value based on user input. This method is called when vertical rotation input is received,
-		/// and it accumulates the rotation amount for processing in the LateUpdate method.
-		/// </summary>
-		/// <param name="amount">The rotation amount to add to the frameVerticalRotate.</param>
-		private void UpdateFrameVerticalRotate(float amount) => this.frameVerticalRotate += amount;
+        /// <summary>
+        /// Updates the frameVerticalRotate value based on user input. This method is called when vertical rotation input is received,
+        /// and it accumulates the rotation amount for processing in the LateUpdate method.
+        /// </summary>
+        /// <param name="amount">The rotation amount to add to the frameVerticalRotate.</param>
+        private void UpdateFrameVerticalRotate(float amount) => this.frameVerticalRotate += amount;
 
-		/// <summary>
-		/// Updates the frameZoom value based on user input. This method is called when zoom input is received,
-		/// and it accumulates the zoom amount for processing in the LateUpdate method.
-		/// </summary>
-		/// <param name="amount">The zoom amount to add to the frameZoom.</param>
-		private void UpdateFrameZoom(float amount) => this.frameZoom += amount;
-	}
+        /// <summary>
+        /// Updates the frameZoom value based on user input. This method is called when zoom input is received,
+        /// and it accumulates the zoom amount for processing in the LateUpdate method.
+        /// </summary>
+        /// <param name="amount">The zoom amount to add to the frameZoom.</param>
+        private void UpdateFrameZoom(float amount) => this.frameZoom += amount;
+    }
 }

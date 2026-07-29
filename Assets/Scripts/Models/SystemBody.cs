@@ -10,6 +10,8 @@ namespace SpaceRTS.Models
     [RequireComponent(typeof(SelectableComponent))]
     public class SystemBody : MonoBehaviour
     {
+        private SelectableComponent selectableComponent;
+
         /// <summary>
         /// Gets or sets the orbital distance of the celestial body from its parent object.
         /// </summary>
@@ -41,8 +43,8 @@ namespace SpaceRTS.Models
         private void Awake()
         {
             // Configure the selection outline for the celestial body on awake
-            var selectable = this.GetComponent<SelectableComponent>();
-            selectable.ConfigureSelectionOutline(this.MaxRadius * 2f);
+            this.selectableComponent = this.GetComponent<SelectableComponent>();
+            this.selectableComponent.ConfigureSelectionOutline(this.MaxRadius * 2f);
         }
 
         /// <summary>

@@ -46,7 +46,9 @@ namespace SpaceRTS.Managers
 			// If a new object is selected, deselect the previous one and set the camera target to the new selection
 			if (clicked != null && clicked != this.currentSelection)
 			{
-				this.Deselect();
+				Debug.Log("New object selected: " + clicked.GetName());
+
+                this.Deselect();
 				this.currentSelection = clicked;
 				this.currentSelection.IsSelected = true;
 				
@@ -87,16 +89,17 @@ namespace SpaceRTS.Managers
 		/// <returns>The first selectable object hit by the raycast, or null if none is hit.</returns>
 		private ISelectable Raycast(Vector3 screenPosition)
 		{
-			// Perform a raycast from the camera to the specified screen position
 			Ray ray = this.cameraManager.SendRay(screenPosition);
-
-			// Check if the raycast hits a selectable object and return it, otherwise return null
-			if (Physics.Raycast(ray, out RaycastHit hit) &&
-                hit.transform.TryGetComponent<ISelectable>(out var selectable))
+			
+			if (Physics.Raycast(ray, out RaycastHit hit))
 			{
-				return selectable;
+				Debug.Log($"Raycast HIT: {hit.transform.name} at distance {hit.distance}");
+				if (hit.transform.TryGetComponent<ISelectable>(out var selectable))
+				{
+                    return selectable;
+				}
 			}
-
+			
 			return null;
 		}
 	}
