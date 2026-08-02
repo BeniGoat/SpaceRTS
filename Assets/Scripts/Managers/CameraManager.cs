@@ -84,7 +84,7 @@ namespace SpaceRTS.Managers
             this.HandleTargetFollow();
             this.HandleMovement();
             this.HandleLateralRotation();
-            this.HandleVerticalRotation();
+            //this.HandleVerticalRotation(); TODO: Fix
             this.HandleZoom();
         }
 

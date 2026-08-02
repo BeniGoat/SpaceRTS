@@ -116,6 +116,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CommandManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7905679419557287119, guid: 574f5fd9102afbf498585bef6a153b65, type: 3}
+      propertyPath: cameraManager
+      value: 
+      objectReference: {fileID: 8727327647677082433}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -452,6 +456,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6410789755679324197, guid: 4eefd07e36d838649a78d3cb33e3e48c, type: 3}
+      propertyPath: cameraManager
+      value: 
+      objectReference: {fileID: 8727327647677082433}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
