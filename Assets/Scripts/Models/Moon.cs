@@ -3,19 +3,23 @@ using UnityEngine;
 
 namespace SpaceRTS.Models
 {
-	/// <summary>
-	/// Represents a moon in the star system. Holds its body reference and configuration.
-	/// Body creation is handled by <see cref="SystemBodyFactory"/>.
-	/// </summary>
-	public class Moon : MonoBehaviour
+    /// <summary>
+    /// Represents a moon in the star system. Holds its body reference and configuration.
+    /// Body creation is handled by <see cref="SystemBodyFactory"/> and ship spawning is handled by the <see cref="ShipFactory"/>.
+    /// </summary>
+    [RequireComponent(typeof(SystemBodyFactory))]
+    [RequireComponent(typeof(ShipFactory))]
+    public class Moon : MonoBehaviour
     {
 		public SystemBody Body { get; private set; }
 
 		private SystemBodyFactory bodyFactory;
+        private ShipFactory shipFactory;
 
-		private void Awake()
+        private void Awake()
         {
             this.bodyFactory = this.GetComponent<SystemBodyFactory>();
+            this.shipFactory = this.GetComponent<ShipFactory>();
         }
 
 		/// <summary>

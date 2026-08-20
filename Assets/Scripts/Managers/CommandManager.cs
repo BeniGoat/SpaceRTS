@@ -1,5 +1,4 @@
-﻿using SpaceRTS.Factories;
-using SpaceRTS.Inputs;
+﻿using SpaceRTS.Inputs;
 using SpaceRTS.Models;
 using SpaceRTS.Models.Interfaces;
 using UnityEngine;
@@ -20,7 +19,6 @@ namespace SpaceRTS.Managers
 			// Subscribe to the command input event and selection changed event
 			SelectionInputManager.OnCommandInput += this.HandleCommandInput;
 			SelectionManager.OnSelectionChanged += this.HandleSelectionChanged;
-			BuildInputManager.OnBuildInput += this.HandleBuildInput;
 		}
 
 		private void OnDisable()
@@ -28,7 +26,6 @@ namespace SpaceRTS.Managers
 			// Unsubscribe from the command input event and selection changed event
 			SelectionInputManager.OnCommandInput -= this.HandleCommandInput;
 			SelectionManager.OnSelectionChanged -= this.HandleSelectionChanged;
-			BuildInputManager.OnBuildInput -= this.HandleBuildInput;
 		}
 
 		/// <summary>
@@ -68,24 +65,6 @@ namespace SpaceRTS.Managers
 				// If no valid system body is hit, clear the ship's destination
 				ship.ClearDestination();
 			}
-		}
-
-		/// <summary>
-		/// Handles the build input. If a SystemBody is selected, attempts to spawn a ship
-		/// using the ShipFactory attached to the body's parent planet.
-		/// </summary>
-		private void HandleBuildInput()
-		{
-    		if (!this.currentSelection.TryGetComponent<SystemBody>(out var selectedBody))
-			{
-				return;
-			}
-
-			// Find the ShipFactory on the selected body's parent hierarchy
-			ShipFactory shipFactory = selectedBody.GetComponentInParent<ShipFactory>();
-			if (shipFactory == null) return;
-
-			shipFactory.TrySpawnShip();
 		}
 	}
 }

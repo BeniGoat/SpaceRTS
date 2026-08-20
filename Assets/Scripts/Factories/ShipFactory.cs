@@ -27,17 +27,26 @@ namespace SpaceRTS.Factories
 
         private void Start()
         {
+            // Initialize the source body reference from the child SystemBody component
             this.sourceBody = this.GetComponentInChildren<SystemBody>();
         }
 
         /// <summary>
-        /// Attempts to spawn a ship in the next available orbital slot.
-        /// Returns null if no slots are available.
+        /// Spawns a ship prefab into orbit around the configured source body by instantiating the prefab, naming it,
+        /// assigning its CurrentSystemBody, positioning and orienting it at the next available orbital slot, scaling it
+        /// relative to the source body, invoking OnShipSpawned, logging the spawn, and incrementing the count of ships
+        /// in orbit.
         /// </summary>
-        public Ship TrySpawnShip()
+        /// <remarks>Checks for a valid source body and available orbital slots and logs a warning when
+        /// either is missing. Orbital position and rotation are taken from orbitalSlots and orbital distance is
+        /// computed from the source body's MaxRadius.</remarks>
+        public void TrySpawnShip()
         {
             if (this.sourceBody == null || this.numOfShipsInOrbit >= this.orbitalSlots.Count)
-                return null;
+            {
+                Debug.LogWarning($"Cannot spawn ship: {(this.sourceBody == null ? "Source body is null." : "No available orbital slots.")}");
+                return;
+            }
 
             Ship newShip = Instantiate(this.shipPrefab);
             newShip.name = $"Ship_{this.numOfShipsInOrbit}_From_{this.sourceBody.name}";
@@ -58,9 +67,10 @@ namespace SpaceRTS.Factories
                 (float)Math.Round(newShip.transform.localScale.y * this.sourceBody.transform.localScale.y, 0),
                 (float)Math.Round(newShip.transform.localScale.z * this.sourceBody.transform.localScale.z, 0));
 
-            this.numOfShipsInOrbit++;
             OnShipSpawned?.Invoke(newShip);
-            return newShip;
+            Debug.Log($"Spawned {newShip.name} in orbit around {this.sourceBody.name} at slot {this.numOfShipsInOrbit}.");
+
+            this.numOfShipsInOrbit++;
         }
     }
 }

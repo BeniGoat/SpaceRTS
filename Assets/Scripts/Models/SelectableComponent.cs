@@ -62,7 +62,9 @@ namespace SpaceRTS.Models
 		/// <inheritdoc cref="ISelectable.ConfigureSelectionOutline"/>
 		public void ConfigureSelectionOutline(float outlineWidth)
         {
-            this.outline ??= this.GetComponent<Outline>();
+            this.outline = this.outline != null 
+				? this.outline 
+				: this.GetComponent<Outline>();
 
             if (this.outline == null) return;
 
