@@ -1,34 +1,29 @@
-﻿using System;
-using UnityEngine;
+﻿using SpaceRTS.Events;
 using SpaceRTS.Managers.Enums;
+using SpaceRTS.Services;
+using UnityEngine;
 
 namespace SpaceRTS.Inputs
 {
 	/// <summary>
 	/// Handles user input for changing the game's speed. It listens for specific key presses
-	/// and invokes an event to notify other systems of the requested game speed change.
+	/// and publishes events via the EventBus to notify other systems of the requested game speed change.
 	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
-	/// TODO: Consider implementing a more flexible input system that allows for customizable key bindings and supports multiple input devices.
 	/// </summary>
-	public class GameSpeedInputManager : InputManager
+	public class GameSpeedInputManager : MonoBehaviour
 	{
-		/// <summary>
-		/// Event fired when the user requests a change in game speed. The parameter indicates the requested speed.
-		/// </summary>
-		public static event Action<GameSpeed> OnGameSpeedChanged;
-
 		private void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.Space))
-				OnGameSpeedChanged?.Invoke(GameSpeed.Paused);
+				EventBus.Publish(new GameSpeedInputEvent { RequestedSpeed = GameSpeed.Paused });
 			else if (Input.GetKeyDown(KeyCode.Alpha1))
-				OnGameSpeedChanged?.Invoke(GameSpeed.x1);
+				EventBus.Publish(new GameSpeedInputEvent { RequestedSpeed = GameSpeed.x1 });
 			else if (Input.GetKeyDown(KeyCode.Alpha2))
-				OnGameSpeedChanged?.Invoke(GameSpeed.x2);
+				EventBus.Publish(new GameSpeedInputEvent { RequestedSpeed = GameSpeed.x2 });
 			else if (Input.GetKeyDown(KeyCode.Alpha3))
-				OnGameSpeedChanged?.Invoke(GameSpeed.x5);
+				EventBus.Publish(new GameSpeedInputEvent { RequestedSpeed = GameSpeed.x5 });
 			else if (Input.GetKeyDown(KeyCode.Alpha4))
-				OnGameSpeedChanged?.Invoke(GameSpeed.x10);
+				EventBus.Publish(new GameSpeedInputEvent { RequestedSpeed = GameSpeed.x10 });
 		}
 	}
 }

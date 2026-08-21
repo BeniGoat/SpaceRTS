@@ -1,5 +1,4 @@
-﻿using System;
-using SpaceRTS.Inputs;
+﻿using SpaceRTS.Events;
 using SpaceRTS.Managers.Enums;
 using SpaceRTS.Services;
 using UnityEngine;
@@ -12,18 +11,10 @@ namespace SpaceRTS.Managers
 	/// </summary>
 	public class TimeScaleManager : MonoBehaviour
 	{
-		/// <summary>
-		/// Fired whenever the effective game speed changes (including pause/unpause).
-		/// </summary>
-		public static event Action<GameSpeed> OnSpeedChanged;
-
 		private const float TimeScaleDivisor = 5f;
 
 		private GameSpeed storedSpeed = GameSpeed.x1;
 		private bool isPaused;
-
-		public GameSpeed CurrentSpeed => this.isPaused ? GameSpeed.Paused : this.storedSpeed;
-		public bool IsPaused => this.isPaused;
 
 		private void Awake()
 		{
@@ -32,12 +23,12 @@ namespace SpaceRTS.Managers
 
 		private void OnEnable()
 		{
-			GameSpeedInputManager.OnGameSpeedChanged += this.HandleSpeedInput;
+			EventBus.Subscribe<GameSpeedInputEvent>(this.HandleSpeedInput);
 		}
 
 		private void OnDisable()
 		{
-			GameSpeedInputManager.OnGameSpeedChanged -= this.HandleSpeedInput;
+			EventBus.Unsubscribe<GameSpeedInputEvent>(this.HandleSpeedInput);
 		}
 
 		private void Start()
@@ -46,6 +37,16 @@ namespace SpaceRTS.Managers
 			this.isPaused = true;
 			this.ApplyTimeScale(GameSpeed.Paused);
 		}
+
+		/// <summary>
+		/// Gets the current effective game speed, which is either the stored speed or paused if the game is currently paused.
+		/// </summary>
+		public GameSpeed CurrentSpeed => this.isPaused ? GameSpeed.Paused : this.storedSpeed;
+
+		/// <summary>
+		/// Gets a value indicating whether the game is currently paused.
+		/// </summary>
+		public bool IsPaused => this.isPaused;
 
 		/// <summary>
 		/// Programmatically set game speed from other systems.
@@ -76,20 +77,20 @@ namespace SpaceRTS.Managers
 		}
 
 		/// <summary>
-		/// Applies the time scale based on the given game speed and invokes the OnSpeedChanged event.
+		/// Applies the time scale based on the given game speed.
 		/// </summary>
-		/// <param name="requestedSpeed">The game speed requested by the input.</param>
-		private void HandleSpeedInput(GameSpeed requestedSpeed)
+		/// <param name="evt">The event containing the game speed requested by the input.</param>
+		private void HandleSpeedInput(GameSpeedInputEvent evt)
 		{
-			if (requestedSpeed == GameSpeed.Paused)
+			if (evt.RequestedSpeed == GameSpeed.Paused)
 			{
 				this.TogglePause();
 			}
 			else
 			{
-				this.storedSpeed = requestedSpeed;
+				this.storedSpeed = evt.RequestedSpeed;
 				this.isPaused = false;
-				this.ApplyTimeScale(requestedSpeed);
+				this.ApplyTimeScale(evt.RequestedSpeed);
 			}
 		}
 
@@ -103,13 +104,13 @@ namespace SpaceRTS.Managers
 		}
 
 		/// <summary>
-		/// Applies the time scale based on the provided game speed and invokes the OnSpeedChanged event.
+		/// Applies the time scale based on the provided game speed.
 		/// </summary>
 		/// <param name="speed">The game speed to apply.</param>
 		private void ApplyTimeScale(GameSpeed speed)
 		{
 			Time.timeScale = (int)speed / TimeScaleDivisor;
-			OnSpeedChanged?.Invoke(speed);
+			EventBus.Publish(new SpeedChangedEvent { Speed = speed });
 		}
 	}
 }

@@ -1,5 +1,4 @@
 using SpaceRTS.Factories;
-using SpaceRTS.Inputs;
 using SpaceRTS.Managers.Enums;
 using SpaceRTS.Services;
 using UnityEngine;
@@ -26,8 +25,9 @@ namespace SpaceRTS.Managers
 
 		private void OnDestroy()
 		{
-			// Clear the service locator when the game manager is destroyed
+			// Clear the service locator and event bus when the game manager is destroyed
 			ServiceLocator.Clear();
+			EventBus.Clear();
 		}
 	}
 }

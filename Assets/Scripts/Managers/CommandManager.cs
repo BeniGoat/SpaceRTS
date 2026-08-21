@@ -1,4 +1,4 @@
-﻿using SpaceRTS.Inputs;
+﻿using SpaceRTS.Events;
 using SpaceRTS.Models;
 using SpaceRTS.Models.Interfaces;
 using SpaceRTS.Services;
@@ -27,33 +27,26 @@ namespace SpaceRTS.Managers
 
 		private void OnEnable()
 		{
-			// Subscribe to the command input event and selection changed event
-			SelectionInputManager.OnCommandInput += this.HandleCommandInput;
-			SelectionManager.OnSelectionChanged += this.HandleSelectionChanged;
+			EventBus.Subscribe<CommandInputEvent>(this.HandleCommandInput);
+			EventBus.Subscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
 		}
 
 		private void OnDisable()
 		{
-			// Unsubscribe from the command input event and selection changed event
-			SelectionInputManager.OnCommandInput -= this.HandleCommandInput;
-			SelectionManager.OnSelectionChanged -= this.HandleSelectionChanged;
+			EventBus.Unsubscribe<CommandInputEvent>(this.HandleCommandInput);
+			EventBus.Unsubscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
 		}
 
 		/// <summary>
-		/// Handles the selection change event. It updates the current selection.
+		/// Handles the selection changed event to update the current selection.
 		/// </summary>
-		/// <param name="selection">The newly selected object.</param>
-		private void HandleSelectionChanged(ISelectable selection)
+		/// <param name="evt">The selection changed event.</param>
+		private void HandleSelectionChanged(SelectionChangedEvent evt)
 		{
-			this.currentSelection = selection;
+			this.currentSelection = evt.Selection;
 		}
 
-		/// <summary>
-		/// Handles the command input from the user. It performs a raycast to determine
-		/// if a system body was clicked and sets the destination for the currently selected ship.
-		/// </summary>
-		/// <param name="screenPosition">The screen position of the mouse click.</param>
-		private void HandleCommandInput(Vector3 screenPosition)
+		private void HandleCommandInput(CommandInputEvent evt)
 		{
 			// If the current selection is either null or not a ship, do nothing
 			if (this.currentSelection == null || !this.currentSelection.TryGetComponent<Ship>(out var ship))
@@ -61,8 +54,8 @@ namespace SpaceRTS.Managers
 				return;
 			}
 
-			// Perform a raycast to determine if a system body was clicked
-			Ray ray = this.cameraManager.SendRay(screenPosition);
+			// Perform a raycast from the camera to the screen position of the command input event
+			Ray ray = this.cameraManager.SendRay(evt.ScreenPosition);
 
 			// If a system body is hit and it's not the current system body of the ship, set it as the destination
 			if (Physics.Raycast(ray, out RaycastHit hit) &&

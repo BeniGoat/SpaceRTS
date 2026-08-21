@@ -1,0 +1,21 @@
+﻿using SpaceRTS.Managers.Enums;
+using SpaceRTS.Models.Interfaces;
+
+namespace SpaceRTS.Events
+{
+	/// <summary>
+	/// Raised when the current selection changes. Selection may be null if cleared.
+	/// </summary>
+	public struct SelectionChangedEvent
+	{
+		public ISelectable Selection;
+	}
+
+	/// <summary>
+	/// Raised when the effective game speed changes (including pause/unpause).
+	/// </summary>
+	public struct SpeedChangedEvent
+	{
+		public GameSpeed Speed;
+	}
+}

@@ -1,26 +1,21 @@
-﻿using UnityEngine;
+﻿using SpaceRTS.Events;
+using SpaceRTS.Services;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace SpaceRTS.Inputs
 {
 	/// <summary>
 	/// Handles user input from the mouse for camera movement, rotation, and zooming. 
-	/// It detects mouse position, button presses, and scroll wheel input to trigger corresponding events that can be subscribed to by other components in the game. 
-	/// The class ensures that input is only processed when the mouse is within a valid area of the screen and not over any UI elements.
+	/// It detects mouse position, button presses, and scroll wheel input to publish corresponding events
+	/// via the EventBus that can be consumed by other components in the game. 
 	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
-	/// TODO: Consider implementing a more flexible input system that allows for customizable key bindings and supports multiple input devices.
 	/// </summary>
-	public class MouseInputManager : InputManager
+	public class MouseInputManager : MonoBehaviour
     {
         private Vector2Int screen;
         private Vector3 mousePos;
         private Vector2 mousePosOnRotateStart;
-
-        // Events
-        public static event MoveInputHandler OnMoveInput;
-        public static event RotateLateralInputHandler OnRotateLateralInput;
-        public static event RotateVerticalInputHandler OnRotateVerticalInput;
-        public static event ZoomInputHandler OnZoomInput;
 
         private void Awake()
         {
@@ -41,60 +36,40 @@ namespace SpaceRTS.Inputs
 
             if (!isMouseValid) { return; }
 
-            // Edge of screen movement
-            if (this.mousePos.x > this.screen.x * 0.95f)
-            {
-                OnMoveInput?.Invoke(Vector3.right);
-            }
-            else if (this.mousePos.x < this.screen.x * 0.05f)
-            {
-                OnMoveInput?.Invoke(Vector3.left);
-            }
+			// Edge of screen movement
+			if (this.mousePos.x > this.screen.x * 0.95f)
+				EventBus.Publish(new MoveInputEvent { Direction = Vector3.right });
+			else if (this.mousePos.x < this.screen.x * 0.05f)
+				EventBus.Publish(new MoveInputEvent { Direction = Vector3.left });
 
-            if (this.mousePos.y > this.screen.y * 0.95f)
-            {
-                OnMoveInput?.Invoke(Vector3.forward);
-            }
-            else if (this.mousePos.y < this.screen.y * 0.05f)
-            {
-                OnMoveInput?.Invoke(Vector3.back);
-            }
+			if (this.mousePos.y > this.screen.y * 0.95f)
+				EventBus.Publish(new MoveInputEvent { Direction = Vector3.forward });
+			else if (this.mousePos.y < this.screen.y * 0.05f)
+				EventBus.Publish(new MoveInputEvent { Direction = Vector3.back });
 
-            // Mouse button rotate
-            if (Input.GetMouseButtonDown(2))
-            {
-                this.mousePosOnRotateStart = new Vector2(this.mousePos.x, this.mousePos.y);
-            }
-            else if (Input.GetMouseButton(2))
-            {
-                if (this.mousePos.x < this.mousePosOnRotateStart.x)
-                {
-                    OnRotateLateralInput?.Invoke(-1f);
-                }
-                else if (this.mousePos.x > this.mousePosOnRotateStart.x)
-                {
-                    OnRotateLateralInput?.Invoke(1f);
-                }
+			// Mouse button rotate
+			if (Input.GetMouseButtonDown(2))
+			{
+				this.mousePosOnRotateStart = new Vector2(this.mousePos.x, this.mousePos.y);
+			}
+			else if (Input.GetMouseButton(2))
+			{
+				if (this.mousePos.x < this.mousePosOnRotateStart.x)
+					EventBus.Publish(new RotateLateralInputEvent { Amount = -1f });
+				else if (this.mousePos.x > this.mousePosOnRotateStart.x)
+					EventBus.Publish(new RotateLateralInputEvent { Amount = 1f });
 
-                if (this.mousePos.y < this.mousePosOnRotateStart.y)
-                {
-                    OnRotateVerticalInput?.Invoke(1f);
-                }
-                else if (this.mousePos.y > this.mousePosOnRotateStart.y)
-                {
-                    OnRotateVerticalInput?.Invoke(-1f);
-                }
-            }
+				if (this.mousePos.y < this.mousePosOnRotateStart.y)
+					EventBus.Publish(new RotateVerticalInputEvent { Amount = 1f });
+				else if (this.mousePos.y > this.mousePosOnRotateStart.y)
+					EventBus.Publish(new RotateVerticalInputEvent { Amount = -1f });
+			}
 
-            // Mouse scroll zoom
-            if (Input.mouseScrollDelta.y > 0)
-            {
-                OnZoomInput?.Invoke(3f);
-            }
-            else if (Input.mouseScrollDelta.y < 0)
-            {
-                OnZoomInput?.Invoke(-3f);
-            }
-        }
+			// Mouse scroll zoom
+			if (Input.mouseScrollDelta.y > 0)
+				EventBus.Publish(new ZoomInputEvent { Amount = 3f });
+			else if (Input.mouseScrollDelta.y < 0)
+				EventBus.Publish(new ZoomInputEvent { Amount = -3f });
+		}
     }
 }

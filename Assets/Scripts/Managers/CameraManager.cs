@@ -1,4 +1,4 @@
-﻿using SpaceRTS.Inputs;
+﻿using SpaceRTS.Events;
 using SpaceRTS.Inputs.Zoom;
 using SpaceRTS.Managers.Enums;
 using SpaceRTS.Services;
@@ -57,31 +57,29 @@ namespace SpaceRTS.Managers
 
         private void OnEnable()
         {
-            // Subscribe to input events
-            KeyboardInputManager.OnMoveInput += this.UpdateFrameMove;
-            KeyboardInputManager.OnRotateLateralInput += this.UpdateFrameLateralRotate;
-            KeyboardInputManager.OnRotateVerticalInput += this.UpdateFrameVerticalRotate;
-            KeyboardInputManager.OnZoomInput += this.UpdateFrameZoom;
-            MouseInputManager.OnMoveInput += this.UpdateFrameMove;
-            MouseInputManager.OnRotateLateralInput += this.UpdateFrameLateralRotate;
-            MouseInputManager.OnRotateVerticalInput += this.UpdateFrameVerticalRotate;
-            MouseInputManager.OnZoomInput += this.UpdateFrameZoom;
-        }
+			// Subscribe to input events
+			EventBus.Subscribe<MoveInputEvent>(this.HandleMoveInput);
+			EventBus.Subscribe<RotateLateralInputEvent>(this.HandleRotateLateralInput);
+			EventBus.Subscribe<RotateVerticalInputEvent>(this.HandleRotateVerticalInput);
+			EventBus.Subscribe<ZoomInputEvent>(this.HandleZoomInput);
+		}
 
         private void OnDisable()
         {
-            // Unsubscribe from input events
-            KeyboardInputManager.OnMoveInput -= this.UpdateFrameMove;
-            KeyboardInputManager.OnRotateLateralInput -= this.UpdateFrameLateralRotate;
-            KeyboardInputManager.OnRotateVerticalInput -= this.UpdateFrameVerticalRotate;
-            KeyboardInputManager.OnZoomInput -= this.UpdateFrameZoom;
-            MouseInputManager.OnMoveInput -= this.UpdateFrameMove;
-            MouseInputManager.OnRotateLateralInput -= this.UpdateFrameLateralRotate;
-            MouseInputManager.OnRotateVerticalInput -= this.UpdateFrameVerticalRotate;
-            MouseInputManager.OnZoomInput -= this.UpdateFrameZoom;
-        }
+			// Unsubscribe from input events
+			EventBus.Unsubscribe<MoveInputEvent>(this.HandleMoveInput);
+			EventBus.Unsubscribe<RotateLateralInputEvent>(this.HandleRotateLateralInput);
+			EventBus.Unsubscribe<RotateVerticalInputEvent>(this.HandleRotateVerticalInput);
+			EventBus.Unsubscribe<ZoomInputEvent>(this.HandleZoomInput);
+		}
 
-        private void LateUpdate()
+		// Event handlers for input events that update the corresponding frame variables for movement, rotation, and zoom.
+		private void HandleMoveInput(MoveInputEvent evt) => this.UpdateFrameMove(evt.Direction);
+		private void HandleRotateLateralInput(RotateLateralInputEvent evt) => this.UpdateFrameLateralRotate(evt.Amount);
+		private void HandleRotateVerticalInput(RotateVerticalInputEvent evt) => this.UpdateFrameVerticalRotate(evt.Amount);
+		private void HandleZoomInput(ZoomInputEvent evt) => this.UpdateFrameZoom(evt.Amount);
+
+		private void LateUpdate()
         {
             this.HandleTargetFollow();
             this.HandleMovement();

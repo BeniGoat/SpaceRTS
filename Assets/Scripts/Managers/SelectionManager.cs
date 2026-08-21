@@ -1,6 +1,4 @@
-﻿using System;
-using SpaceRTS.Inputs;
-using SpaceRTS.Models;
+﻿using SpaceRTS.Events;
 using SpaceRTS.Models.Interfaces;
 using SpaceRTS.Services;
 using UnityEngine;
@@ -13,12 +11,7 @@ namespace SpaceRTS.Managers
 	/// It maintains the current selection state and notifies other systems when the selection changes.
 	/// </summary>
 	public class SelectionManager : MonoBehaviour
-    {
-		/// <summary>
-		/// Event fired when the selection changes. The parameter is the newly selected object, or null if no object is selected.
-		/// </summary>
-        public static event Action<ISelectable> OnSelectionChanged;
-		
+    {		
         private CameraManager cameraManager;
 		private ISelectable currentSelection;
 
@@ -34,25 +27,25 @@ namespace SpaceRTS.Managers
 
 		private void OnEnable()
 		{
-			SelectionInputManager.OnSelectInput += this.HandleSelectInput;
+			EventBus.Subscribe<SelectInputEvent>(this.HandleSelectInput);
 		}
 
 		private void OnDisable()
 		{
-			SelectionInputManager.OnSelectInput -= this.HandleSelectInput;
+			EventBus.Unsubscribe<SelectInputEvent>(this.HandleSelectInput);
 		}
 
 		/// <summary>
 		/// Handles the selection input from the user. It performs a raycast to determine if
-        /// a selectable object was clicked, and updates the current selection accordingly.
-        /// If a new object is selected, it deselects the previous one and sets the camera target to the new selection. 
-        /// If no object is selected, it clears the selection and resets the camera target.
+		/// a selectable object was clicked, and updates the current selection accordingly.
+		/// If a new object is selected, it deselects the previous one and sets the camera target to the new selection. 
+		/// If no object is selected, it clears the selection and resets the camera target.
 		/// </summary>
-		/// <param name="screenPosition">The screen position where the selection input occurred.</param>
-		private void HandleSelectInput(Vector3 screenPosition)
+		/// <param name="evt">The selection input event containing the screen position of the selection.</param>
+		private void HandleSelectInput(SelectInputEvent evt)
 		{
 			// Perform a raycast to determine if a selectable object was clicked
-			ISelectable clicked = this.Raycast(screenPosition);
+			ISelectable clicked = this.Raycast(evt.ScreenPosition);
 
 			// If a new object is selected, deselect the previous one and set the camera target to the new selection
 			if (clicked != null && clicked != this.currentSelection)
@@ -75,8 +68,8 @@ namespace SpaceRTS.Managers
 				this.cameraManager.SetTarget(null);
 			}
 
-			// Invoke the selection changed event to notify other systems of the new selection
-			OnSelectionChanged?.Invoke(this.currentSelection);
+			// Notify other systems about the selection change
+			EventBus.Publish(new SelectionChangedEvent{ Selection = this.currentSelection });
 		}
 
 		/// <summary>

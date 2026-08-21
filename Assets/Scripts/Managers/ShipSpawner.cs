@@ -1,5 +1,5 @@
+using SpaceRTS.Events;
 using SpaceRTS.Factories;
-using SpaceRTS.Inputs;
 using SpaceRTS.Models;
 using SpaceRTS.Models.Interfaces;
 using SpaceRTS.Services;
@@ -22,37 +22,36 @@ namespace SpaceRTS.Managers
 		private void OnEnable()
         {
             Debug.Log("[ShipSpawner] OnEnable - Subscribing to events");
-            // Subscribe to selection change events and build input
-            SelectionManager.OnSelectionChanged += this.UpdateSelection;
-            BuildInputManager.OnBuildInput += this.TrySpawnShipAtSelection;
+            EventBus.Subscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
+            EventBus.Subscribe<BuildInputEvent>(this.HandleBuildInput);
         }
 
         private void OnDisable()
         {
             Debug.Log("[ShipSpawner] OnDisable - Unsubscribing from events");
-            // Unsubscribe from events
-            SelectionManager.OnSelectionChanged -= this.UpdateSelection;
-            BuildInputManager.OnBuildInput -= this.TrySpawnShipAtSelection;
+            EventBus.Unsubscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
+            EventBus.Unsubscribe<BuildInputEvent>(this.HandleBuildInput);
         }
 
-        /// <summary>
-        /// Sets the current selection to the specified selectable.
-        /// </summary>
-        /// <param name="newSelection">The selectable to assign as the current selection; pass null to clear the selection.</param>
-        private void UpdateSelection(ISelectable newSelection)
+        private void HandleSelectionChanged(SelectionChangedEvent evt)
         {
-            Debug.Log($"[ShipSpawner] Selection changed to: {(newSelection != null ? newSelection.GetName() : "null")}");
-            this.currentSelection = newSelection;
+            Debug.Log($"[ShipSpawner] Selection changed to: {(evt.Selection != null ? evt.Selection.GetName() : "null")}");
+            this.currentSelection = evt.Selection;
         }
 
-        /// <summary>
-        /// Attempts to spawn a ship at the currently selected system body by locating a ShipFactory on the body's
-        /// parent and logging the outcome.
-        /// </summary>
-        /// <remarks>Performs null checks for the current selection and associated SystemBody. If the
-        /// parent's ShipFactory is found, calls TrySpawnShip and logs an informational message on success; logs
-        /// warnings when spawning fails or when no ShipFactory is present.</remarks>
-        private void TrySpawnShipAtSelection()
+		/// <summary>
+		/// Handles the build input event by attempting to spawn a ship at the currently selected system body.
+		/// </summary>
+		/// <param name="evt">The build input event.</param>
+		private void HandleBuildInput(BuildInputEvent evt)
+        {
+            this.TrySpawnShipAtSelection();
+        }
+
+		/// <summary>
+		/// Attempts to spawn a ship at the currently selected system body if it has a ShipFactory.
+		/// </summary>
+		private void TrySpawnShipAtSelection()
         {
             Debug.Log("[ShipSpawner] Build input received");
 
@@ -84,24 +83,20 @@ namespace SpaceRTS.Managers
             }
         }
 
-        /// <summary>
-        /// Retrieves the SystemBody associated with the provided selectable by checking for a SystemBody component on a
-        /// SelectableComponent or by returning the CurrentSystemBody from an associated Ship.
-        /// </summary>
-        /// <remarks>The method first attempts to get a SystemBody component from the
-        /// SelectableComponent's GameObject; if none is present it attempts to get a Ship component and returns its
-        /// CurrentSystemBody. Returns null when neither component is present or the input is not a
-        /// SelectableComponent.</remarks>
-        /// <param name="selectable">Selectable to inspect; expected to be a SelectableComponent whose GameObject may contain a SystemBody or
-        /// Ship component.</param>
-        /// <returns>The found SystemBody, or null if the selectable is not a SelectableComponent and no SystemBody can be
-        /// determined.</returns>
-        private SystemBody GetSystemBodyFromSelection(ISelectable selectable)
+		/// <summary>
+		/// Attempts to retrieve the SystemBody component from the selected object.
+        /// If the selected object is a Ship, it will return the CurrentSystemBody of that ship.
+        /// If no valid SystemBody is found, it returns null.
+		/// </summary>
+		/// <param name="selectable">The selectable object to retrieve the SystemBody from.</param>
+		/// <returns>The SystemBody component if found; otherwise, null.</returns>
+		private SystemBody GetSystemBodyFromSelection(ISelectable selectable)
         {
-            // The selectable should be a SystemBody
-            if (selectable is SelectableComponent selectableComponent)
+			// Check if the selectable is a SelectableComponent
+			if (selectable is SelectableComponent selectableComponent)
             {
-                SystemBody body = selectableComponent != null 
+				// First, check if the selectable's GameObject has a SystemBody component
+				SystemBody body = selectableComponent != null 
                     ? selectableComponent.gameObject.GetComponent<SystemBody>() 
                     : null;
                 if (body != null)
@@ -110,8 +105,8 @@ namespace SpaceRTS.Managers
                     return body;
                 }
 
-                // If this is a ship, spawn from its current system body
-                Ship ship = selectableComponent != null 
+				// If not, check if the selectable's GameObject has a Ship component and get its CurrentSystemBody
+				Ship ship = selectableComponent != null 
                     ? selectableComponent.gameObject.GetComponent<Ship>() 
                     : null;
                 if (ship != null && ship.CurrentSystemBody != null)
