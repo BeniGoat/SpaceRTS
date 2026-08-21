@@ -6,12 +6,16 @@ using UnityEngine.EventSystems;
 namespace SpaceRTS.Inputs
 {
 	/// <summary>
-	/// Handles user input from the mouse for camera movement, rotation, and zooming. 
-	/// It detects mouse position, button presses, and scroll wheel input to publish corresponding events
-	/// via the EventBus that can be consumed by other components in the game. 
-	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
+	/// Converts mouse interactions into camera control events: edge-of-screen movement, middle‑mouse rotation, and
+	/// mouse‑wheel zoom, and publishes corresponding events on the EventBus.
 	/// </summary>
-	public class MouseInputManager : MonoBehaviour
+	/// <remarks>Ignores input when the pointer is over UI. Initializes screen dimensions in Awake and applies a 5%
+	/// outer buffer to ignore out-of-range cursor positions. Edge movement publishes discrete MoveInputEvent directions
+	/// when the cursor crosses 5% edge thresholds. Middle‑mouse dragging records the start position and publishes
+	/// RotateLateralInputEvent and RotateVerticalInputEvent with ±1 amounts based on relative mouse movement. Mouse wheel
+	/// scrolling publishes ZoomInputEvent with ±3 amounts. The class does not perform camera transforms itself; it only
+	/// emits high-level input events.</remarks>
+	public class CameraMouseInputManager : MonoBehaviour
     {
         private Vector2Int screen;
         private Vector3 mousePos;

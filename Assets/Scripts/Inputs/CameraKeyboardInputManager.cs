@@ -10,9 +10,8 @@ namespace SpaceRTS.Inputs
 	/// It listens for specific key presses (W, A, S, D for movement; Q, E for lateral rotation; R, F for vertical rotation; Z, X for zooming)
 	/// and publishes corresponding events via the EventBus to notify other components of the input actions. 
 	/// This class ensures that input is only processed when the pointer is not over a UI element.
-	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
 	/// </summary>
-	public class KeyboardInputManager : MonoBehaviour
+	public class CameraKeyboardInputManager : MonoBehaviour
     {
         private void Update()
         {

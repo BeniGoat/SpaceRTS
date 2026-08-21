@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace SpaceRTS.Models.Interfaces
 {
     /// <summary>
@@ -23,5 +25,11 @@ namespace SpaceRTS.Models.Interfaces
         /// </summary>
         /// <returns>The name as a string.</returns>
         string GetName();
+
+        /// <summary>
+        /// Gets the Transform that defines position, rotation, and scale.
+        /// </summary>
+        /// <returns>The Transform used for positioning, rotation, and scaling.</returns>
+        Transform GetTransform();
     }
 }

@@ -25,6 +25,9 @@ namespace SpaceRTS.Models
             return this.gameObject.transform.parent.name;
         }
 
+        /// <inheritdoc cref="ISelectable.GetTransform"/>
+        public Transform GetTransform() => this.transform;
+
         /// <inheritdoc cref="ISelectable.IsSelected"/>
         public bool IsSelected
 		{

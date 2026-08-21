@@ -6,6 +6,14 @@ using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
+    /// <summary>
+    /// Manages the scene camera's movement, rotation, zoom, and optional target following; resolves or creates the
+    /// Camera component and delegates zoom behavior to an IZoomStrategy.
+    /// </summary>
+    /// <remarks>Subscribes to input events that accumulate per-frame movement, rotation, and zoom values
+    /// processed in LateUpdate. Supports perspective and orthographic modes via SetCamera, clamps position within
+    /// configured bounds, and smoothly follows a target using damping. Movement and zoom scale with camera distance for
+    /// consistent control.</remarks>
     public class CameraManager : MonoBehaviour
     {
         private Camera cam;

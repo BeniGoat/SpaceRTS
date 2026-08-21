@@ -18,14 +18,14 @@ namespace SpaceRTS.Inputs
 			// Check for left mouse button click (selection) 
 			if (Input.GetMouseButtonDown(0))
 			{
-				Debug.Log("Left mouse button clicked at position: " + Input.mousePosition);
+                //UnityEngine.Debug.Log("Left mouse button clicked at position: " + Input.mousePosition);
 				EventBus.Publish(new SelectInputEvent { ScreenPosition = Input.mousePosition });
 			}
 			// Check for right mouse button click (command)
 			else if (Input.GetMouseButtonDown(1))
             {
-                Debug.Log("Right mouse button clicked at position: " + Input.mousePosition);
-				EventBus.Publish(new CommandInputEvent { ScreenPosition = Input.mousePosition });
+                // UnityEngine.Debug.Log("Right mouse button clicked at position: " + Input.mousePosition);
+                EventBus.Publish(new CommandInputEvent { ScreenPosition = Input.mousePosition });
 			}
         }
 	}

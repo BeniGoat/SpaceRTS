@@ -16,8 +16,8 @@ namespace SpaceRTS.Managers
 
         private void Start()
 		{
-			// Spawn the star system and get its size
-			float systemSize = this.systemFactory.Initialise();
+            // Spawn the star system and get its size
+            float systemSize = this.systemFactory.Initialise();
 
 			// Initialize camera with system bounds
 			this.cameraManager.SetCamera(this.cameraMode, (int)Mathf.Ceil(systemSize));
@@ -25,8 +25,11 @@ namespace SpaceRTS.Managers
 
 		private void OnDestroy()
 		{
-			// Clear the service locator and event bus when the game manager is destroyed
-			ServiceLocator.Clear();
+            // Reset time scale before clearing
+            Time.timeScale = 1f;
+
+            // Clear the service locator and event bus when the game manager is destroyed
+            ServiceLocator.Clear();
 			EventBus.Clear();
 		}
 	}
