@@ -3,7 +3,14 @@ using UnityEngine.EventSystems;
 
 namespace SpaceRTS.Inputs
 {
-    public class MouseInputManager : InputManager
+	/// <summary>
+	/// Handles user input from the mouse for camera movement, rotation, and zooming. 
+	/// It detects mouse position, button presses, and scroll wheel input to trigger corresponding events that can be subscribed to by other components in the game. 
+	/// The class ensures that input is only processed when the mouse is within a valid area of the screen and not over any UI elements.
+	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
+	/// TODO: Consider implementing a more flexible input system that allows for customizable key bindings and supports multiple input devices.
+	/// </summary>
+	public class MouseInputManager : InputManager
     {
         private Vector2Int screen;
         private Vector3 mousePos;

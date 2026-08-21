@@ -1,6 +1,7 @@
 ﻿using SpaceRTS.Inputs;
 using SpaceRTS.Models;
 using SpaceRTS.Models.Interfaces;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -11,8 +12,18 @@ namespace SpaceRTS.Managers
 	/// </summary>
 	public class CommandManager : MonoBehaviour
 	{
-		[SerializeField] private CameraManager cameraManager;
+		private CameraManager cameraManager;
 		private ISelectable currentSelection;
+
+		private void Awake()
+		{
+			ServiceLocator.Register(this);
+		}
+
+		private void Start()
+		{
+			this.cameraManager = ServiceLocator.Get<CameraManager>();
+		}
 
 		private void OnEnable()
 		{
@@ -44,8 +55,8 @@ namespace SpaceRTS.Managers
 		/// <param name="screenPosition">The screen position of the mouse click.</param>
 		private void HandleCommandInput(Vector3 screenPosition)
 		{
-			// If the current selection is not a ship, do nothing
-			if (!this.currentSelection.TryGetComponent<Ship>(out var ship))
+			// If the current selection is either null or not a ship, do nothing
+			if (this.currentSelection == null || !this.currentSelection.TryGetComponent<Ship>(out var ship))
 			{
 				return;
 			}

@@ -1,6 +1,7 @@
 ﻿using System;
 using SpaceRTS.Inputs;
 using SpaceRTS.Managers.Enums;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -23,6 +24,11 @@ namespace SpaceRTS.Managers
 
 		public GameSpeed CurrentSpeed => this.isPaused ? GameSpeed.Paused : this.storedSpeed;
 		public bool IsPaused => this.isPaused;
+
+		private void Awake()
+		{
+			ServiceLocator.Register(this);
+		}
 
 		private void OnEnable()
 		{

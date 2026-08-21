@@ -3,7 +3,15 @@ using UnityEngine.EventSystems;
 
 namespace SpaceRTS.Inputs
 {
-    public class KeyboardInputManager : InputManager
+	/// <summary>
+	/// Handles keyboard input for camera movement, rotation, and zooming in the game. 
+	/// It listens for specific key presses (W, A, S, D for movement; Q, E for lateral rotation; R, F for vertical rotation; Z, X for zooming)
+	/// and invokes corresponding events to notify other components of the input actions. 
+	/// This class ensures that input is only processed when the pointer is not over a UI element.
+	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
+	/// TODO: Consider implementing a more flexible input system that allows for customizable key bindings and supports multiple input devices.
+	/// </summary>
+	public class KeyboardInputManager : InputManager
     {
         // Events
         public static event MoveInputHandler OnMoveInput;

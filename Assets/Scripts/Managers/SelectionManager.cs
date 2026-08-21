@@ -2,6 +2,7 @@
 using SpaceRTS.Inputs;
 using SpaceRTS.Models;
 using SpaceRTS.Models.Interfaces;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -18,8 +19,18 @@ namespace SpaceRTS.Managers
 		/// </summary>
         public static event Action<ISelectable> OnSelectionChanged;
 		
-        [SerializeField] private CameraManager cameraManager;
+        private CameraManager cameraManager;
 		private ISelectable currentSelection;
+
+		private void Awake()
+		{
+			ServiceLocator.Register(this);
+		}
+
+		private void Start()
+		{
+			this.cameraManager = ServiceLocator.Get<CameraManager>();
+		}
 
 		private void OnEnable()
 		{

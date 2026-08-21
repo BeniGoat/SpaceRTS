@@ -1,6 +1,7 @@
 ﻿using SpaceRTS.Inputs;
 using SpaceRTS.Inputs.Zoom;
 using SpaceRTS.Managers.Enums;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -50,6 +51,7 @@ namespace SpaceRTS.Managers
 
         private void Awake()
         {
+            ServiceLocator.Register(this);
             this.ResolveCamera();
         }
 

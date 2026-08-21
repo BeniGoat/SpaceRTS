@@ -1,12 +1,21 @@
 ﻿using System.Collections.Generic;
 using SpaceRTS.Models;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
-    public class MovementManager : MonoBehaviour
+	/// <summary>
+	/// Manages the movement of ships in the game, updating their positions and handling arrival at destinations.
+	/// </summary>
+	public class MovementManager : MonoBehaviour
     {
 		private readonly List<Ship> activeShips = new List<Ship>();
+
+		private void Awake()
+		{
+			ServiceLocator.Register(this);
+		}
 
 		/// <summary>
 		/// Registers a ship to be managed for movement updates.

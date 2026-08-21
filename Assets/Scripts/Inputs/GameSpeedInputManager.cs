@@ -7,6 +7,8 @@ namespace SpaceRTS.Inputs
 	/// <summary>
 	/// Handles user input for changing the game's speed. It listens for specific key presses
 	/// and invokes an event to notify other systems of the requested game speed change.
+	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
+	/// TODO: Consider implementing a more flexible input system that allows for customizable key bindings and supports multiple input devices.
 	/// </summary>
 	public class GameSpeedInputManager : InputManager
 	{

@@ -1,5 +1,6 @@
 using SpaceRTS.Managers;
 using SpaceRTS.Models.Interfaces;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Models
@@ -14,8 +15,8 @@ namespace SpaceRTS.Models
         [SerializeField] private float travelSpeed = 1f;
         [SerializeField] private float arrivalDistance = 0.05f;
         [SerializeField] private Color pathLineColour = new Color(0.1f, 1, 0.1f, 0.5f);
-        [SerializeField] private MovementManager movementManager;
-
+        
+        private MovementManager movementManager;
         private ISelectable selectable;
         private LineRenderer path;
         private SystemBody destinationBody;
@@ -32,9 +33,9 @@ namespace SpaceRTS.Models
 
         private void Awake()
         {
-            this.movementManager = this.movementManager != null 
-                ? this.movementManager 
-                : FindAnyObjectByType<MovementManager>();
+			// Retrieve the MovementManager instance from the ServiceLocator for managing ship movement
+			// Since Ship instances are created dynamically, we need to get the MovementManager reference in Awake
+			this.movementManager = ServiceLocator.Get<MovementManager>();
             
             // Configure the selection outline for the ship on awake
             this.selectable = this.GetComponent<SelectableComponent>();

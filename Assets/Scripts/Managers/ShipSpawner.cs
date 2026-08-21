@@ -2,6 +2,7 @@ using SpaceRTS.Factories;
 using SpaceRTS.Inputs;
 using SpaceRTS.Models;
 using SpaceRTS.Models.Interfaces;
+using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
@@ -13,7 +14,12 @@ namespace SpaceRTS.Managers
     {
         private ISelectable currentSelection;
 
-        private void OnEnable()
+		private void Awake()
+		{
+			ServiceLocator.Register(this);
+		}
+
+		private void OnEnable()
         {
             Debug.Log("[ShipSpawner] OnEnable - Subscribing to events");
             // Subscribe to selection change events and build input

@@ -6,6 +6,8 @@ namespace SpaceRTS.Inputs
 	/// <summary>
 	/// Handles user input for selection and command actions in the game.
 	/// It listens for mouse button clicks and invokes events to notify other systems of the user's selection or command input.
+	/// TODO: Move this to a new InputManagers GameObject in the scene (it no longer lives on the GameManager GameObject)
+	/// TODO: Consider implementing a more flexible input system that allows for customizable key bindings and supports multiple input devices.
 	/// </summary>
 	public class SelectionInputManager : MonoBehaviour
 	{
