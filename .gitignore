@@ -18,6 +18,10 @@
 # Unity Asset Store packages (imported packages are copied to Packages/)
 [Aa]ssets/[Aa]sset[Ss]tore[Tt]ools*
 
+# TextMesh Pro - Examples (not needed in source control)
+[Aa]ssets/TextMesh Pro/Examples/
+[Aa]ssets/TextMesh Pro/Plugins/
+
 # =========================================================================
 # VISUAL STUDIO & C# SOLUTION IGNORES
 # =========================================================================

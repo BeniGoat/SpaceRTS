@@ -56,25 +56,37 @@ namespace SpaceRTS.Managers
         /// <param name="speed">Desired game speed; used to adjust the Time.timeScale accordingly.</param>
         public void SetGameSpeed(GameSpeed speed)
 		{
+            GameSpeed appliedSpeed;
+
             // Check if the requested speed is pause request
             if (speed == GameSpeed.Paused)
             {
-                // If the game is currently paused, resume to the previous speed; otherwise, pause the game
-                this.ApplyTimeScale(this.isPaused ? this.previousSpeed : GameSpeed.Paused);
-
-                // Toggle the pause state
-                this.isPaused = !this.isPaused;
+                if (this.isPaused)
+                {
+                    // Currently paused, so resume to the previous speed
+                    appliedSpeed = this.previousSpeed;
+                    this.ApplyTimeScale(this.previousSpeed);
+                    this.isPaused = false;
+                }
+                else
+                {
+                    // Currently running, so pause
+                    appliedSpeed = GameSpeed.Paused;
+                    this.ApplyTimeScale(GameSpeed.Paused);
+                    this.isPaused = true;
+                }
             }
             else
             {
                 // If the requested speed is not pause, store the previous speed and apply the new speed
                 this.previousSpeed = speed;
+                appliedSpeed = speed;
                 this.isPaused = false;
                 this.ApplyTimeScale(speed);
             }
 
-            EventBus.Publish(new SpeedChangedEvent { Speed = speed });
-            Debug.Log($"[GameSpeedManager] Game speed changed to: {speed}, Time.timeScale = {Time.timeScale}");
+            EventBus.Publish(new SpeedChangedEvent { Speed = appliedSpeed });
+            Debug.Log($"[GameSpeedManager] Game speed changed to: {appliedSpeed}, Time.timeScale = {Time.timeScale}");
         }
 
         /// <summary>
