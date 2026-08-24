@@ -1,6 +1,4 @@
-using SpaceRTS.Managers;
 using SpaceRTS.Models.Interfaces;
-using SpaceRTS.Services;
 using UnityEngine;
 
 namespace SpaceRTS.Models
@@ -16,7 +14,6 @@ namespace SpaceRTS.Models
         [SerializeField] private float arrivalDistance = 0.05f;
         [SerializeField] private Color pathLineColour = new Color(0.1f, 1, 0.1f, 0.5f);
         
-        private MovementManager movementManager;
         private ISelectable selectable;
         private LineRenderer path;
         private SystemBody destinationBody;
@@ -32,24 +29,11 @@ namespace SpaceRTS.Models
         public bool HasArrived { get; internal set; }
 
         private void Awake()
-        {
-			// Retrieve the MovementManager instance from the ServiceLocator for managing ship movement
-			// Since Ship instances are created dynamically, we need to get the MovementManager reference in Awake
-			this.movementManager = ServiceLocator.Get<MovementManager>();
-            
+        {            
             // Configure the selection outline for the ship on awake
             this.selectable = this.GetComponent<SelectableComponent>();
             this.selectable.ConfigureSelectionOutline(1f);
             this.ConfigureShipPathLine();
-        }
-
-        private void Update()
-        {
-            // Update the ship path line if it is enabled and a destination body is set
-            if (this.path.enabled && this.destinationBody != null)
-            {
-                this.UpdatePathLine();
-            }
         }
 
         /// <summary>
@@ -61,15 +45,8 @@ namespace SpaceRTS.Models
             // Set the destination system body for the ship and enable the path line renderer
             this.destinationBody = target;
             this.HasArrived = false;
-
             this.path.enabled = true;
             this.path.forceRenderingOff = false;
-
-
-            if (this.movementManager != null)
-            {
-                this.movementManager.RegisterMovingShip(this);
-            }
         }
 
         /// <summary>
@@ -79,13 +56,6 @@ namespace SpaceRTS.Models
         {
             this.destinationBody = null;
             this.HasArrived = false;
-
-            // Unregister the ship from the movement manager when clearing the destination
-            if (this.movementManager != null)
-            {
-                this.movementManager.UnregisterMovingShip(this);
-            }
-
             this.path.enabled = false;
             this.path.forceRenderingOff = true;
         }
@@ -136,19 +106,8 @@ namespace SpaceRTS.Models
 
             // Update the current system body to the destination body and clear the destination
             this.CurrentSystemBody = this.destinationBody;
-            this.destinationBody = null;
-            this.HasArrived = false;
-
-            // Unregister the ship from the movement manager
-            if (this.movementManager != null)
-            {
-                this.movementManager.UnregisterMovingShip(this);
-            }
-
-            // Disable the path line renderer after completing the travel
-            this.path.enabled = false;
-            this.path.forceRenderingOff = true;
-        }
+            this.ClearDestination();
+		}
 
         /// <summary>
         /// Processes the ship's travel towards its destination system body based on the specified delta time.

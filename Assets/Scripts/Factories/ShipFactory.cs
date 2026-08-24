@@ -10,11 +10,6 @@ namespace SpaceRTS.Factories
     /// </summary>
     public class ShipFactory : MonoBehaviour
     {
-        /// <summary>
-        /// Event triggered when a new ship is spawned.
-        /// </summary>
-        public static event Action<Ship> OnShipSpawned;
-
         [SerializeField] private Ship shipPrefab;
         private SystemBody sourceBody;
         private int numOfShipsInOrbit;
@@ -67,7 +62,6 @@ namespace SpaceRTS.Factories
                 (float)Math.Round(newShip.transform.localScale.y * this.sourceBody.transform.localScale.y, 0),
                 (float)Math.Round(newShip.transform.localScale.z * this.sourceBody.transform.localScale.z, 0));
 
-            OnShipSpawned?.Invoke(newShip);
             Debug.Log($"Spawned {newShip.name} in orbit around {this.sourceBody.name} at slot {this.numOfShipsInOrbit}.");
 
             this.numOfShipsInOrbit++;

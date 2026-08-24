@@ -5,6 +5,7 @@ namespace SpaceRTS.Events
 {
 	/// <summary>
 	/// Raised when a movement input is detected (keyboard WASD or mouse edge scrolling).
+	/// Using structs for events to avoid garbage collection overhead.
 	/// </summary>
 	public struct MoveInputEvent
 	{

@@ -17,34 +17,22 @@ namespace SpaceRTS.Models
         /// </summary>
         public float OrbitalDistance { get; set; }
 
-        /// <summary>
-        /// Gets the maximum radius of the celestial body based on its current scale.
-        /// </summary>
-        public float MaxRadius
+		/// <summary>
+		/// Gets the maximum world-space radius of the body.
+		/// </summary>
+		public float MaxRadius
         {
             get
             {
-                // Calculate the maximum radius based on the lossy scale of the transform.
-                float maxRadius = this.transform.lossyScale.normalized.z;
-                if (this.transform.lossyScale.normalized.y > this.transform.lossyScale.normalized.z)
-                {
-                    maxRadius = this.transform.lossyScale.normalized.y;
-                }
-
-                if (this.transform.lossyScale.normalized.x > maxRadius)
-                {
-                    maxRadius = this.transform.lossyScale.normalized.x;
-                }
-
-                return maxRadius;
-            }
+				// Calculate the maximum radius based on the lossy scale of the transform.
+				Vector3 scale = this.transform.lossyScale;
+				return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
+			}
         }
 
         private void Awake()
         {
-            // Configure the selection outline for the celestial body on awake
             this.selectableComponent = this.GetComponent<SelectableComponent>();
-            this.selectableComponent.ConfigureSelectionOutline(this.MaxRadius * 2f);
         }
 
         /// <summary>
@@ -67,13 +55,14 @@ namespace SpaceRTS.Models
             this.SetBodySize(new Vector3(x, y, z));
         }
 
-        /// <summary>
-        /// Sets the size of the celestial body based on the specified scale.
-        /// </summary>
-        /// <param name="scale">The scale vector for each dimension.</param>
-        public void SetBodySize(Vector3 scale)
+		/// <summary>
+		/// Sets the size of the celestial body and updates its size-dependent selection outline.
+		/// </summary>
+		/// <param name="scale">The scale vector for each dimension.</param>
+		public void SetBodySize(Vector3 scale)
         {
             this.transform.localScale = scale;
-        }
-    }
+			this.selectableComponent.ConfigureSelectionOutline(this.MaxRadius * 2f);
+		}
+	}
 }

@@ -13,6 +13,7 @@ namespace SpaceRTS.Managers
 	public class CommandManager : MonoBehaviour
 	{
 		private CameraManager cameraManager;
+		private MovementManager movementManager;
 		private ISelectable currentSelection;
 
 		private void Awake()
@@ -23,6 +24,7 @@ namespace SpaceRTS.Managers
 		private void Start()
 		{
 			this.cameraManager = ServiceLocator.Get<CameraManager>();
+			this.movementManager = ServiceLocator.Get<MovementManager>();
 		}
 
 		private void OnEnable()
@@ -46,6 +48,10 @@ namespace SpaceRTS.Managers
 			this.currentSelection = evt.Selection;
 		}
 
+		/// <summary>
+		/// Handles the command input event by checking if the current selection is a ship and performing a raycast to determine if a system body was clicked.
+		/// </summary>
+		/// <param name="evt">The command input event.</param>
 		private void HandleCommandInput(CommandInputEvent evt)
 		{
 			// If the current selection is either null or not a ship, do nothing
@@ -62,12 +68,12 @@ namespace SpaceRTS.Managers
 				hit.transform.TryGetComponent(out SystemBody targetBody) &&
 				targetBody != ship.CurrentSystemBody)
 			{
-				ship.SetDestination(targetBody);
+				this.movementManager.SetDestination(ship, targetBody);
 			}
 			else
 			{
 				// If no valid system body is hit, clear the ship's destination
-				ship.ClearDestination();
+				this.movementManager.ClearDestination(ship);
 			}
 		}
 	}

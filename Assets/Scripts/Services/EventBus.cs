@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SpaceRTS.Services
 {
@@ -53,7 +54,17 @@ namespace SpaceRTS.Services
 		{
 			if (handlers.TryGetValue(typeof(T), out var existing))
 			{
-				((Action<T>)existing).Invoke(evt);
+				foreach (Action<T> handler in existing.GetInvocationList())
+				{
+					try
+					{
+						handler.Invoke(evt);
+					}
+					catch (Exception ex)
+					{
+						UnityEngine.Debug.LogException(ex, null);
+					}
+				}
 			}
 		}
 

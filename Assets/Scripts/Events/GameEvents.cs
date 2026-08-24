@@ -5,6 +5,7 @@ namespace SpaceRTS.Events
 {
 	/// <summary>
 	/// Raised when the current selection changes. Selection may be null if cleared.
+	/// Using structs for events to avoid garbage collection overhead.
 	/// </summary>
 	public struct SelectionChangedEvent
 	{
