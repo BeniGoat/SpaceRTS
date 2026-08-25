@@ -5,21 +5,25 @@ namespace SpaceRTS.Models
 {
     /// <summary>
     /// Represents a planet in the star system. Holds its body reference and configuration.
-    /// Actual system body spawning is handled by the SystemBodyFactory, moon spawning is handled by the MoonFactory.
+    /// Actual system body spawning is handled by the SystemBodyFactory, moon spawning is handled by the MoonFactory,
+    /// and ship spawning is handled by the ShipFactory.
     /// </summary>
     [RequireComponent(typeof(SystemBodyFactory))]
     [RequireComponent(typeof(MoonFactory))]
+    [RequireComponent(typeof(ShipFactory))]
     public class Planet : MonoBehaviour
     {
 		public SystemBody Body { get; private set; }
 
 		private SystemBodyFactory bodyFactory;
 		private MoonFactory moonFactory;
+        private ShipFactory shipFactory;
 
         private void Awake()
         {
 			this.bodyFactory = this.GetComponent<SystemBodyFactory>();
             this.moonFactory = this.GetComponent<MoonFactory>();
+            this.shipFactory = this.GetComponent<ShipFactory>();
         }
 
         /// <summary>

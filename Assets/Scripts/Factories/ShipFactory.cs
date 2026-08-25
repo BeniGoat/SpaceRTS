@@ -10,13 +10,11 @@ namespace SpaceRTS.Factories
     /// </summary>
     public class ShipFactory : MonoBehaviour
     {
-        public bool isActive = true;
-
         [SerializeField] private Ship shipPrefab;
         private SystemBody sourceBody;
         private int numOfShipsInOrbit;
 
-        private readonly List<(int position, int rotation)> orbitalSlots = new()
+        private readonly List<(int position, int rotation)> orbitalSlots = new List<(int, int)>
         {
             (0, 90), (45, 45), (90, 0), (135, 315),
             (180, 270), (225, 225), (270, 180), (315, 135)
