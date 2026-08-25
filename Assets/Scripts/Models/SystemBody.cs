@@ -1,3 +1,4 @@
+using SpaceRTS.Factories;
 using UnityEngine;
 
 namespace SpaceRTS.Models
@@ -6,33 +7,42 @@ namespace SpaceRTS.Models
     /// Represents a celestial body in the star system, such as a planet or moon.
     /// It holds properties for orbital distance and size, and provides methods
     /// to configure its visual representation in the game world.
+    /// Ship spawning is handled by the <see cref="ShipFactory"/>
     /// </summary>
     [RequireComponent(typeof(SelectableComponent))]
+    [RequireComponent(typeof(ShipFactory))]
     public class SystemBody : MonoBehaviour
     {
         private SelectableComponent selectableComponent;
+        private ShipFactory shipFactory;
 
         /// <summary>
         /// Gets or sets the orbital distance of the celestial body from its parent object.
         /// </summary>
         public float OrbitalDistance { get; set; }
 
-		/// <summary>
-		/// Gets the maximum world-space radius of the body.
-		/// </summary>
-		public float MaxRadius
+        /// <summary>
+        /// Gets the maximum world-space radius of the body.
+        /// </summary>
+        public float MaxRadius
         {
             get
             {
-				// Calculate the maximum radius based on the lossy scale of the transform.
-				Vector3 scale = this.transform.lossyScale;
-				return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
-			}
+                // Calculate the maximum radius based on the lossy scale of the transform.
+                Vector3 scale = this.transform.lossyScale;
+                return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
+            }
         }
+
+        /// <summary>
+        /// Gets the ShipFactory component attached to this celestial body, if it is active.
+        /// </summary>
+        public ShipFactory ShipFactory => this.shipFactory.isActive ? this.shipFactory : null;
 
         private void Awake()
         {
             this.selectableComponent = this.GetComponent<SelectableComponent>();
+            this.shipFactory = this.GetComponent<ShipFactory>();
         }
 
         /// <summary>
@@ -55,14 +65,14 @@ namespace SpaceRTS.Models
             this.SetBodySize(new Vector3(x, y, z));
         }
 
-		/// <summary>
-		/// Sets the size of the celestial body and updates its size-dependent selection outline.
-		/// </summary>
-		/// <param name="scale">The scale vector for each dimension.</param>
-		public void SetBodySize(Vector3 scale)
+        /// <summary>
+        /// Sets the size of the celestial body and updates its size-dependent selection outline.
+        /// </summary>
+        /// <param name="scale">The scale vector for each dimension.</param>
+        public void SetBodySize(Vector3 scale)
         {
             this.transform.localScale = scale;
-			this.selectableComponent.ConfigureSelectionOutline(this.MaxRadius * 2f);
-		}
-	}
+            this.selectableComponent.ConfigureSelectionOutline(this.MaxRadius * 2f);
+        }
+    }
 }
