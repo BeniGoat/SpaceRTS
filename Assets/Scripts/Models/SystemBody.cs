@@ -18,9 +18,9 @@ namespace SpaceRTS.Models
         public float OrbitalDistance { get; set; }
 
 		/// <summary>
-		/// Gets the maximum world-space radius of the body.
+		/// Gets the body's maximum world-space radius.
 		/// </summary>
-		public float MaxRadius
+		public float WorldRadius
         {
             get
             {
@@ -30,7 +30,21 @@ namespace SpaceRTS.Models
 			}
         }
 
-        private void Awake()
+		/// <summary>
+		/// Gets the body's maximum local-space radius.
+		/// </summary>
+		public float LocalRadius
+        {
+            get
+            {
+                // Calculate the local radius based on the local scale of the transform.
+                Vector3 scale = this.transform.localScale;
+                return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
+            }
+        }
+
+
+		private void Awake()
         {
             this.selectableComponent = this.GetComponent<SelectableComponent>();
         }
@@ -62,7 +76,7 @@ namespace SpaceRTS.Models
 		public void SetBodySize(Vector3 scale)
         {
             this.transform.localScale = scale;
-			this.selectableComponent.ConfigureSelectionOutline(this.MaxRadius * 2f);
+			this.selectableComponent.ConfigureSelectionOutline(this.WorldRadius * 2f);
 		}
 	}
 }

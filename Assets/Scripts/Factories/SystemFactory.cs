@@ -1,6 +1,4 @@
 ﻿using SpaceRTS.Models;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpaceRTS.Factories
@@ -15,63 +13,83 @@ namespace SpaceRTS.Factories
 		[SerializeField] private Planet planetPrefab;
 
 		[Header("System Generation Settings")]
-		[SerializeField] private float minOrbitalSeparation = 2f;
-		[SerializeField] private float maxOrbitalSeparation = 5f;
+		[Min(0f)]
+		[SerializeField] private float minOrbitalClearance = 2f;
+
+		[Min(0f)]
+		[SerializeField] private float maxOrbitalClearance = 5f;
+
+		[Min(1)]
 		[SerializeField] private int minPlanets = 3;
+
+		[Min(1)]
 		[SerializeField] private int maxPlanets = 8;
-		[SerializeField] private int minPlanetSize = 1;
-		[SerializeField] private int maxPlanetSize = 5;
+
+		[Min(1)]
+		[SerializeField] private float minPlanetDiameter = 0.1f;
+
+		[Min(1)]
+		[SerializeField] private float maxPlanetDiameter = 0.5f;
+
+		private void OnValidate()
+		{
+			if (this.sunPrefab == null)
+				Debug.LogError("Sun prefab is not assigned in the SystemFactory.", this);
+			if (this.planetPrefab == null)
+				Debug.LogError("Planet prefab is not assigned in the SystemFactory.", this);
+
+			this.maxOrbitalClearance = Mathf.Max(this.maxOrbitalClearance, this.minOrbitalClearance);
+			this.maxPlanets = Mathf.Max(this.maxPlanets, this.minPlanets);
+			this.maxPlanetDiameter = Mathf.Max(this.maxPlanetDiameter, this.minPlanetDiameter);
+		}
 
 		/// <summary>
-		/// Spawns a complete star system with a sun and a random number of planets, each with random sizes and orbital distances.
+		/// Spawns a complete star system with randomly sized and spaced planets.
+		/// Planet spacing accounts for the radii of adjacent bodies.
 		/// </summary>
-		/// <returns>The orbital distance of the farthest planet in the system.</returns>
+		/// <returns>The extent of the star system, defined as the distance from the center of the sun to the farthest point of the outermost planet.</returns>
 		public float Initialise()
 		{
 			// Spawn the sun
 			GameObject sun = Instantiate(this.sunPrefab);
 			sun.name = "Sun_1";
-			float minOrbitalDistance = sun.transform.localScale.x;
 
-			// Calculate orbital distances
-			int numPlanets = UnityEngine.Random.Range(this.minPlanets, this.maxPlanets + 1);
-			List<float> orbitalDistances = this.CalculateOrbitalDistances(numPlanets, minOrbitalDistance);
+			Vector3 sunScale = sun.transform.localScale;
+			float sunRadius = Mathf.Max(sunScale.x, sunScale.y, sunScale.z) * 0.5f;
+
+			int numPlanets = Random.Range(this.minPlanets, this.maxPlanets + 1);
+
+			float previousOrbitalDistance = sunRadius;
+			float previousPlanetRadius = 0f;
+			float systemExtent = sunRadius;
 
 			// Spawn planets
 			for (int i = 0; i < numPlanets; i++)
 			{
 				// Determine a random size for the planet within the specified range
-				float planetSize = UnityEngine.Random.Range(this.minPlanetSize, this.maxPlanetSize + 1) * 0.1f;
+				float planetDiameter = Random.Range(this.minPlanetDiameter, this.maxPlanetDiameter);
+				float planetRadius = planetDiameter * 0.5f;
+
+				// Calculate a random clearance distance between the previous planet and the current planet
+				float clearance = Random.Range(this.minOrbitalClearance, this.maxOrbitalClearance);
+				float orbitalDistance = previousOrbitalDistance
+									  + previousPlanetRadius
+									  + planetRadius
+									  + clearance;
+
+				// Instantiate the planet prefab and set its properties
 				Planet planet = Instantiate(this.planetPrefab);
-				planet.Initialise(i + 1, orbitalDistances[i], planetSize);
+				planet.Initialise(i + 1, orbitalDistance, planetDiameter);
+
+				// Update the previous orbital distance and planet radius for the next iteration
+				previousOrbitalDistance = orbitalDistance;
+				previousPlanetRadius = planetRadius;
+
+				// Update the system extent to ensure it encompasses the farthest planet
+				systemExtent = Mathf.Max(systemExtent, orbitalDistance + planetRadius);
 			}
 
-			return orbitalDistances[numPlanets - 1];
-		}
-
-		/// <summary>
-		/// Calculates the orbital distances for a given number of planets, ensuring that each planet
-		/// is spaced apart by a random separation distance within the specified range.
-		/// </summary>
-		/// <param name="count">The number of planets for which to calculate orbital distances.</param>
-		/// <param name="minDistance">The minimum distance from the sun for the first planet.</param>
-		/// <returns>A list of orbital distances for each planet.</returns>
-		private List<float> CalculateOrbitalDistances(int count, float minDistance)
-		{
-			var distances = new List<float>(count);
-
-			// Calculate orbital distances for each planet, ensuring they are spaced apart by a random separation distance
-			for (int i = 0; i < count; i++)
-			{
-				float separation = UnityEngine.Random.Range(this.minOrbitalSeparation, this.maxOrbitalSeparation);
-
-				if (i == 0)
-					distances.Add(minDistance + (separation * 0.5f));
-				else
-					distances.Add(distances[i - 1] + separation);
-			}
-
-			return distances;
+			return systemExtent;
 		}
 	}
 }

@@ -11,6 +11,7 @@ namespace SpaceRTS.Factories
 	public class SystemBodyFactory : MonoBehaviour
     {
 		[SerializeField] private SystemBody childBodyPrefab;
+		[SerializeField] private float orbitalSpeedMultiplier = 1f;
 
 		/// <summary>
 		/// Spawns a child body (planet or moon) at the specified orbital distance and with the specified diameter.
@@ -49,16 +50,15 @@ namespace SpaceRTS.Factories
             return childBody;
         }
 
-        /// <summary>
-        /// Gets the orbital speed based on the specified orbital distance.
-        /// </summary>
-        /// <param name="orbitalDistance">The orbital distance.</param>
-        /// <returns>The orbital speed.</returns>
-        private float CalculateOrbitalSpeed(float orbitalDistance)
+		/// <summary>
+		/// Gets the orbital speed based on the orbital distance using Kepler's third law.
+		/// </summary>
+		/// <param name="orbitalDistance">The orbital distance.</param>
+		/// <returns>The orbital speed in degrees per second.</returns>
+		private float CalculateOrbitalSpeed(float orbitalDistance)
         {
-            double orbitalPeriod = Math.Sqrt(Math.Pow(orbitalDistance, 3));
-            double orbitalLength = 2 * Math.PI * orbitalDistance;
-            return (float)(orbitalLength / orbitalPeriod);
-        }
+			float orbitalPeriod = Mathf.Pow(orbitalDistance, 1.5f);
+			return (360f / orbitalPeriod) * this.orbitalSpeedMultiplier;
+		}
     }
 }
