@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7022709919966658084
+--- !u!1 &8537199977197042104
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,47 +8,39 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7323615876112190610}
-  - component: {fileID: 8750308976947553046}
+  - component: {fileID: 7586604674722204914}
+  - component: {fileID: 3811996350927075471}
   m_Layer: 0
-  m_Name: SystemFactory
+  m_Name: BuildInputManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7323615876112190610
+--- !u!4 &7586604674722204914
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7022709919966658084}
+  m_GameObject: {fileID: 8537199977197042104}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8750308976947553046
+--- !u!114 &3811996350927075471
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7022709919966658084}
+  m_GameObject: {fileID: 8537199977197042104}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf17bf5f7891c2847af9240eb81ca718, type: 3}
+  m_Script: {fileID: 11500000, guid: efb0f457f656c37468df588a56e505ad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Factories.SystemFactory
-  sunPrefab: {fileID: 6365920966171356602, guid: e50a27520a684eb4fa7948abd681401f, type: 3}
-  planetPrefab: {fileID: 8020384180356138232, guid: 52f17fbce79852043b9aa1547a2601e1, type: 3}
-  minOrbitalClearance: 2
-  maxOrbitalClearance: 5
-  minPlanets: 3
-  maxPlanets: 8
-  minPlanetDiameter: 0.2
-  maxPlanetDiameter: 1
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Inputs.BuildInputManager

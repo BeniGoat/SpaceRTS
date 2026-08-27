@@ -211,6 +211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   childBodyPrefab: {fileID: -3663189249271380115, guid: 40f9b5c36949e1d4481ea85ee48f3f64, type: 3}
+  orbitalSpeedMultiplier: 0.1
 --- !u!114 &8209864408146794837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,7 +227,7 @@ MonoBehaviour:
   moonPrefab: {fileID: -4488196078252135381, guid: 0b18cb99f2d6b5b43a9c6fece5177ffc, type: 3}
   minMoons: 0
   maxMoons: 3
-  minOrbitalSeparation: 1
-  maxOrbitalSeparation: 3
-  minMoonSize: 1
-  maxMoonSize: 3
+  minOrbitalClearance: 0.1
+  maxOrbitalClearance: 0.3
+  minMoonDiameter: 0.02
+  maxMoonDiameter: 0.1

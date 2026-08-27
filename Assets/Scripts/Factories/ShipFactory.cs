@@ -49,7 +49,7 @@ namespace SpaceRTS.Factories
 
             var (positionAngle, rotationAngle) = this.orbitalSlots[this.numOfShipsInOrbit];
             float angle = positionAngle * Mathf.Deg2Rad;
-            float orbitalDistance = this.sourceBody.MaxRadius * 1.2f;
+            float orbitalDistance = this.sourceBody.WorldRadius * 1.25f;
 
             newShip.transform.parent = this.sourceBody.transform;
             newShip.transform.localPosition = new Vector3(

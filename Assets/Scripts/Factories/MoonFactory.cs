@@ -21,25 +21,22 @@ namespace SpaceRTS.Factories
 		[Min(0)]
 		[SerializeField] private int maxMoons = 3;
 
-		[Min(0.0f)]
-		[SerializeField] private float minOrbitalClearance = 0.01f;
+		[Min(0.1f)]
+		[SerializeField] private float minOrbitalClearance = 0.1f;
 
-		[Min(0.0f)]
-		[SerializeField] private float maxOrbitalClearance = 0.03f;
+		[Min(0.1f)]
+		[SerializeField] private float maxOrbitalClearance = 0.3f;
 
-		[Min(0.0f)]
-		[SerializeField] private float minMoonDiameter = 0.01f;
+		[Min(0.01f)]
+		[SerializeField] private float minMoonDiameter = 0.02f;
 
-		[Min(0.0f)]
-		[SerializeField] private float maxMoonDiameter = 0.03f;
+		[Min(0.01f)]
+		[SerializeField] private float maxMoonDiameter = 0.1f;
 
 		private readonly List<Moon> moons = new List<Moon>();
 
 		private void OnValidate()
 		{
-			if(this.moonPrefab == null)
-				Debug.LogError("Moon prefab is not assigned in the MoonFactory.", this);
-
 			this.maxMoons = Mathf.Max(this.maxMoons, this.minMoons);
 			this.maxOrbitalClearance = Mathf.Max(this.maxOrbitalClearance, this.minOrbitalClearance);
 			this.maxMoonDiameter = Mathf.Max(this.maxMoonDiameter, this.minMoonDiameter);
@@ -56,8 +53,8 @@ namespace SpaceRTS.Factories
 			int numMoons = Random.Range(this.minMoons, this.maxMoons + 1);
 
 			// Initialize the previous orbital distance and moon radius for calculating the next moon's orbit
-			float previousOrbitalDistance = parentBody.LocalRadius;
-			float previousMoonRadius = 0f;
+			float previousOrbitalDistance = parentBody.WorldRadius * 1.5f; // Start the first moon's orbit at 1.5 times the parent body's radius
+            float previousMoonRadius = 0f;
 
 			// Spawn each moon with a random orbital distance and size
 			for (int i = 0; i < numMoons; i++)

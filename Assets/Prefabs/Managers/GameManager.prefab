@@ -48,7 +48,6 @@ MonoBehaviour:
   systemFactory: {fileID: 8750308976947553046, guid: 9d668ce64eeef4e45a0ef952da8cb457, type: 3}
   cameraManager: {fileID: 7868725596745060161, guid: 2c933de3e30d5a841918e384b321437c, type: 3}
   cameraMode: 0
-  gameSpeedManager: {fileID: 7425233840469126432, guid: 72e901a394bf0174e90285fe62df3d73, type: 3}
 --- !u!114 &40059617315865988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,9 +62,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Factories.SystemFactory
   sunPrefab: {fileID: 6365920966171356602, guid: e50a27520a684eb4fa7948abd681401f, type: 3}
   planetPrefab: {fileID: 8020384180356138232, guid: 52f17fbce79852043b9aa1547a2601e1, type: 3}
-  minOrbitalSeparation: 2
-  maxOrbitalSeparation: 5
+  minOrbitalClearance: 2
+  maxOrbitalClearance: 5
   minPlanets: 3
   maxPlanets: 8
-  minPlanetSize: 1
-  maxPlanetSize: 5
+  minPlanetDiameter: 0.2
+  maxPlanetDiameter: 1
