@@ -22,10 +22,10 @@ namespace SpaceRTS.Factories
 		[SerializeField] private int maxMoons = 3;
 
 		[Min(0.01f)]
-		[SerializeField] private float minOrbitalClearance = 0.01f;
+		[SerializeField] private float minOrbitalClearance = 0.05f;
 
 		[Min(0.01f)]
-		[SerializeField] private float maxOrbitalClearance = 0.03f;
+		[SerializeField] private float maxOrbitalClearance = 0.15f;
 
 		[Min(0.01f)]
 		[SerializeField] private float minMoonDiameter = 0.01f;
