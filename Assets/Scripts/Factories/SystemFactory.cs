@@ -13,22 +13,22 @@ namespace SpaceRTS.Factories
 		[SerializeField] private Planet planetPrefab;
 
 		[Header("System Generation Settings")]
-		[Min(0f)]
+		[Min(1f)]
 		[SerializeField] private float minOrbitalClearance = 2f;
 
-		[Min(0f)]
+		[Min(1f)]
 		[SerializeField] private float maxOrbitalClearance = 5f;
 
-		[Min(1)]
+		[Min(0)]
 		[SerializeField] private int minPlanets = 3;
 
-		[Min(1)]
+		[Min(0)]
 		[SerializeField] private int maxPlanets = 8;
 
-		[Min(1)]
+		[Min(0.1f)]
 		[SerializeField] private float minPlanetDiameter = 0.1f;
 
-		[Min(1)]
+		[Min(0.1f)]
 		[SerializeField] private float maxPlanetDiameter = 0.5f;
 
 		private void OnValidate()
