@@ -11,37 +11,7 @@ namespace SpaceRTS.Factories
 	public class SystemBodyFactory : MonoBehaviour
     {
 		[SerializeField] private SystemBody childBodyPrefab;
-
-		/// <summary>
-		/// Represents a band of orbital speed multipliers based on distance thresholds.
-		/// </summary>
-		[Serializable]
-		private struct OrbitalSpeedBand
-		{
-			// Example Inspector configuration:
-			// Minimum Distance: 0.5 - Speed Multiplier: 0.05
-			// Minimum Distance: 2.0 - Speed Multiplier: 0.15
-			// Minimum Distance: 5.0 - Speed Multiplier: 0.5
-			// Minimum Distance: 15.0 - Speed Multiplier: 1.0
-
-			[Min(0f)]
-			[SerializeField] private float minimumDistance;
-
-			[Min(0f)]
-			[SerializeField] private float speedMultiplier;
-
-			public float MinimumDistance => this.minimumDistance;
-			public float SpeedMultiplier => this.speedMultiplier;
-		}
-
-		// Orbital speed multiplier for the default case when no bands are matched.
-		[Header("Orbital Speed")]
-		[Min(0f)]
-		[SerializeField] private float orbitalSpeedMultiplier = 0.02f;
-
-		// Array of orbital speed bands for stepped distance-based multipliers.
-		[SerializeField]
-		private OrbitalSpeedBand[] orbitalSpeedBands = Array.Empty<OrbitalSpeedBand>();
+		[SerializeField] private float orbitalSpeedMultiplier = 1f;
 
 		/// <summary>
 		/// Spawns a child body (planet or moon) at the specified orbital distance and with the specified diameter.
@@ -52,8 +22,8 @@ namespace SpaceRTS.Factories
 		public SystemBody SpawnChildBody(float orbitalDistance, float bodyDiameter)
         {
 			// Calculate a random position in the orbit for the child body
-			float positionInOrbit = UnityEngine.Random.Range(0f, 360f);
-			float angle = positionInOrbit * Mathf.Deg2Rad;
+			int positionInOrbit = UnityEngine.Random.Range(0, 359);
+            float angle = positionInOrbit * Mathf.Deg2Rad;
             float x = orbitalDistance * Mathf.Cos(angle);
             float z = orbitalDistance * Mathf.Sin(angle);
 
@@ -81,42 +51,14 @@ namespace SpaceRTS.Factories
         }
 
 		/// <summary>
-		/// Calculates orbital speed using Kepler's third law and a stepped
-		/// distance-based multiplier.
+		/// Gets the orbital speed based on the orbital distance using Kepler's third law.
 		/// </summary>
-		/// <param name="orbitalDistance">The orbital distance of the body.</param>
-		/// <returns>The orbital speed in degrees per second.</returns>	
+		/// <param name="orbitalDistance">The orbital distance.</param>
+		/// <returns>The orbital speed in degrees per second.</returns>
 		private float CalculateOrbitalSpeed(float orbitalDistance)
-		{
-			float safeDistance = Mathf.Max(orbitalDistance, 0.001f);
-			float orbitalPeriod = Mathf.Pow(safeDistance, 1.5f);
-			float multiplier = this.GetOrbitalSpeedMultiplier(safeDistance);
-
-			return (360f / orbitalPeriod) * multiplier;
+        {
+			float orbitalPeriod = Mathf.Pow(orbitalDistance, 1.5f);
+			return (360f / orbitalPeriod) * this.orbitalSpeedMultiplier;
 		}
-
-		/// <summary>
-		/// Gets the multiplier belonging to the highest distance threshold
-		/// reached by the orbital distance.
-		/// </summary>
-		/// <param name="orbitalDistance">The orbital distance of the body.</param>
-		/// <returns>The orbital speed multiplier.</returns>
-		private float GetOrbitalSpeedMultiplier(float orbitalDistance)
-		{
-			float selectedMultiplier = this.orbitalSpeedMultiplier;
-			float selectedThreshold = 0f;
-
-			foreach (OrbitalSpeedBand band in this.orbitalSpeedBands)
-			{
-				if (orbitalDistance >= band.MinimumDistance &&
-					band.MinimumDistance >= selectedThreshold)
-				{
-					selectedThreshold = band.MinimumDistance;
-					selectedMultiplier = band.SpeedMultiplier;
-				}
-			}
-
-			return selectedMultiplier;
-		}
-	}
+    }
 }
