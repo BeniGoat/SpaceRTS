@@ -23,16 +23,16 @@ namespace SpaceRTS.Models
         }
 
 		/// <summary>
-		/// Initialises the moon body with the specified orbital and angular velocity parameters.
+		/// Initialises the moon body with the specified orbital and size parameters.
 		/// </summary>
 		/// <param name="index">The index of the moon.</param>
 		/// <param name="orbitalDistance">The orbital distance of the moon from its parent body.</param>
 		/// <param name="size">The size of the moon.</param>
-		/// <param name="angularVelocity">The angular velocity of the moon in degrees per second.</param>
-		public void Initialise(int index, float orbitalDistance, float size, float angularVelocity)
-        {
-            this.name = $"Moon_{index}";
-            this.Body = this.bodyFactory.SpawnSystemBody(orbitalDistance, size, angularVelocity);
-        }
+		public void Initialise(int index, float orbitalDistance, float size)
+		{
+			this.name = $"Moon_{index}";
+			this.Body = this.bodyFactory.SpawnSystemBody(orbitalDistance, size);
+			this.Body.ConfigureTidalLock();
+		}
     }
 }

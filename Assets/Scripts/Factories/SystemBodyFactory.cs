@@ -53,13 +53,12 @@ namespace SpaceRTS.Factories
 		}
 
 		/// <summary>
-		/// Spawns a system body (planet or moon) at the specified orbital distance and with the specified diameter and angular velocity.
+		/// Spawns a system body (planet or moon) at the specified orbital distance and with the specified diameter.
 		/// </summary>
 		/// <param name="orbitalDistance">The orbital distance of the system body from its parent.</param>
 		/// <param name="bodyDiameter">The diameter of the system body.</param>
-		/// <param name="angularVelocity">The angular velocity of the system body in degrees per second.</param>
 		/// <returns>The spawned system body.</returns>
-		public SystemBody SpawnSystemBody(float orbitalDistance, float bodyDiameter, float angularVelocity)
+		public SystemBody SpawnSystemBody(float orbitalDistance, float bodyDiameter)
         {
             // Calculate a random position in the orbit for the system body
             int positionInOrbit = UnityEngine.Random.Range(0, 360);
@@ -71,7 +70,6 @@ namespace SpaceRTS.Factories
             SystemBody systemBody = Instantiate(this.childBodyPrefab, this.transform);
             systemBody.transform.localPosition = new Vector3(x, 0, z);
             systemBody.SetBodySize(bodyDiameter);
-            systemBody.SetAngularVelocity(angularVelocity);
 
             // Get the orbital speed based on the orbital distance
             float orbitalSpeed = this.CalculateOrbitalSpeed(orbitalDistance);

@@ -1,5 +1,4 @@
 using SpaceRTS.Models.Components;
-using System;
 using UnityEngine;
 
 namespace SpaceRTS.Models
@@ -10,11 +9,16 @@ namespace SpaceRTS.Models
     /// to configure its visual representation in the game world.
     /// </summary>
     [RequireComponent(typeof(SelectableComponent))]
-    [RequireComponent(typeof(Rotator))] 
+    [RequireComponent(typeof(Rotator))]
     public class SystemBody : MonoBehaviour
     {
+        [Header("Axial Spin")]
+        [Min(0f)]
+        [SerializeField] private float axialAngularMomentum = 0.01f;
+
         private SelectableComponent selectableComponent;
         private Rotator rotator;
+        private bool isTidallyLocked;
 
 		/// <summary>
 		/// Gets the body's maximum world-space radius.
@@ -33,14 +37,27 @@ namespace SpaceRTS.Models
 		/// Gets the body's maximum local-space radius.
 		/// </summary>
 		public float LocalRadius
-        {
-            get
-            {
-                // Calculate the local radius based on the local scale of the transform.
-                Vector3 scale = this.transform.localScale;
-                return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
-            }
-        }
+			{
+				get
+				{
+					// Calculate the local radius based on the local scale of the transform.
+					Vector3 scale = this.transform.localScale;
+					return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
+				}
+			}
+
+		/// <summary>
+		/// Gets the body's mass calculated from its local radius.
+		/// Assumes constant density of 1 and uses the sphere volume formula.
+		/// </summary>
+		public float Mass
+		{
+			get
+			{
+				float radius = this.LocalRadius;
+				return (4f / 3f) * Mathf.PI * radius * radius * radius;
+			}
+		}
 
 		private void Awake()
         {
@@ -67,15 +84,67 @@ namespace SpaceRTS.Models
 		/// </summary>
 		/// <param name="scale">The scale vector for each dimension.</param>
 		public void SetBodySize(Vector3 scale)
-        {
-            this.transform.localScale = scale;
+		{
+			this.transform.localScale = scale;
 			this.selectableComponent.ConfigureSelectionOutline(this.WorldRadius * 2f);
+			this.ConfigureAxialSpinFromMass();
 		}
 
 		/// <summary>
 		/// Sets the angular velocity for rotation around the up axis.
 		/// </summary>
 		/// <param name="degreesPerSecond">The angular velocity value in degrees per second.</param>
-		public void SetAngularVelocity(float degreesPerSecond) => this.rotator.SetRotationSpeed(degreesPerSecond, Vector3.up);
+		public void SetAngularVelocity(float degreesPerSecond)
+		{
+			if (this.rotator == null)
+				this.rotator = this.GetComponent<Rotator>();
+
+			this.rotator.SetRotationSpeed(degreesPerSecond, Vector3.up);
+		}
+
+		/// <summary>
+		/// Configures the body as tidally locked by cancelling independent axial self-spin.
+		/// </summary>
+		public void ConfigureTidalLock()
+		{
+			this.isTidallyLocked = true;
+			this.SetAngularVelocity(0f);
+		}
+
+		/// <summary>
+		/// Configures axial self-spin using angular momentum and uniform-sphere moment of inertia.
+		/// </summary>
+		private void ConfigureAxialSpinFromMass()
+		{
+			// If the body is tidally locked, cancel any independent axial self-spin.
+			if (this.isTidallyLocked)
+			{
+				this.SetAngularVelocity(0f);
+				return;
+			}
+
+			// Calculate the moment of inertia for a uniform sphere
+			float radius = this.LocalRadius;
+			if (radius <= 0f)
+			{
+				// If the radius is zero or negative, cancel any independent axial self-spin.
+				this.SetAngularVelocity(0f);
+				return;
+			}
+
+			// Calculate the moment of inertia for a uniform sphere
+			float inertia = 0.4f * this.Mass * radius * radius;
+			if (inertia <= Mathf.Epsilon)
+			{
+				// If the moment of inertia is zero or negative, cancel any independent axial self-spin.
+				this.SetAngularVelocity(0f);
+				return;
+			}
+
+			// Calculate the angular velocity in radians per second and convert to degrees per second
+			float angularVelocityRadiansPerSecond = this.axialAngularMomentum / inertia;
+			float angularVelocityDegreesPerSecond = angularVelocityRadiansPerSecond * Mathf.Rad2Deg;
+			this.SetAngularVelocity(angularVelocityDegreesPerSecond);
+		}
 	}
 }

@@ -77,12 +77,9 @@ namespace SpaceRTS.Factories
 									  + planetRadius
 									  + clearance;
 
-				// Calculate the angular velocity for the planet based on its orbital distance (simplified for demonstration)
-				float angularVelocity = 30f;
-
 				// Instantiate the planet prefab and set its properties
 				Planet planet = Instantiate(this.planetPrefab);
-				planet.Initialise(i + 1, orbitalDistance, planetDiameter, angularVelocity);
+				planet.Initialise(i + 1, orbitalDistance, planetDiameter);
 
 				// Update the previous orbital distance and planet radius for the next iteration
 				previousOrbitalDistance = orbitalDistance;
