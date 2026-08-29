@@ -53,33 +53,23 @@ namespace SpaceRTS.Managers
 		/// </summary>
 		private void TrySpawnShipAtSelection()
         {
-            Debug.Log("[ShipSpawner] Build input received");
-
             // Check if we have a selected system body
             if (this.currentSelection == null)
                 return;
-
-            Debug.Log($"[ShipSpawner] Current selection: {this.currentSelection.GetName()}");
 
             // Try to get the SystemBody component from the selected object
             SystemBody selectedBody = this.GetSystemBodyFromSelection(this.currentSelection);
             if (selectedBody == null)
                 return;
 
-            Debug.Log($"[ShipSpawner] Got SystemBody: {selectedBody.name}");
-
-            // The ShipFactory is on the Planet/Moon parent container
-            ShipFactory shipFactory = selectedBody.transform.parent != null 
+			// The ShipFactory is on the Planet/Moon parent container of the SystemBody.
+            // We need to check if the selected body has a parent and get the ShipFactory from it.
+			ShipFactory shipFactory = selectedBody.transform.parent != null 
                 ? selectedBody.transform.parent.GetComponent<ShipFactory>() 
                 : null;
             if (shipFactory != null)
             {
-                Debug.Log($"[ShipSpawner] Found ShipFactory on parent, attempting spawn");
                 shipFactory.TrySpawnShip();
-            }
-            else
-            {
-                Debug.LogWarning($"Selected body {selectedBody.name} has no ShipFactory on parent");
             }
         }
 
@@ -99,24 +89,17 @@ namespace SpaceRTS.Managers
 				SystemBody body = selectableComponent != null 
                     ? selectableComponent.gameObject.GetComponent<SystemBody>() 
                     : null;
-                if (body != null)
-                {
-                    Debug.Log($"[ShipSpawner] Found SystemBody on same GameObject: {body.name}");
-                    return body;
-                }
+                if (body != null)                
+                    return body;                
 
 				// If not, check if the selectable's GameObject has a Ship component and get its CurrentSystemBody
 				Ship ship = selectableComponent != null 
                     ? selectableComponent.gameObject.GetComponent<Ship>() 
                     : null;
-                if (ship != null && ship.CurrentSystemBody != null)
-                {
-                    Debug.Log($"[ShipSpawner] Selection is a Ship, using CurrentSystemBody: {ship.CurrentSystemBody.name}");
-                    return ship.CurrentSystemBody;
-                }
+                if (ship != null && ship.CurrentSystemBody != null)                
+                    return ship.CurrentSystemBody;                
             }
             
-            Debug.LogWarning("[ShipSpawner] No valid SystemBody found from selection");
             return null;
         }
     }

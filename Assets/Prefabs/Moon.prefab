@@ -220,3 +220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Factories.ShipFactory
   shipPrefab: {fileID: 6097181097171975033, guid: 752f0d3cacb1e384cab476af3ebc43fc, type: 3}
+  minOrbitalSlots: 4
+  maxOrbitalSlots: 16
+  bodyRadiusPerAdditionalSlot: 0.05
+  shipPrefabScale: 0.25

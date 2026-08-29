@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using SpaceRTS.Models;
 using UnityEngine;
 
@@ -11,16 +9,16 @@ namespace SpaceRTS.Factories
     public class ShipFactory : MonoBehaviour
     {
         [SerializeField] private Ship shipPrefab;
-        private SystemBody sourceBody;
-        private int numOfShipsInOrbit;
 
-        private readonly List<(int position, int rotation)> orbitalSlots = new List<(int, int)>
-        {
-            (0, 90), (45, 45), (90, 0), (135, 315),
-            (180, 270), (225, 225), (270, 180), (315, 135)
-        };
+        [SerializeField, Min(1)] private int minOrbitalSlots = 4;
+        [SerializeField, Min(1)] private int maxOrbitalSlots = 16;
+        [SerializeField, Min(0.01f)] private float bodyRadiusPerAdditionalSlot = 0.05f;
+        [SerializeField, Min(0.1f)] private float shipPrefabScale = 0.25f;
 
-        private void Start()
+		private SystemBody sourceBody;
+		private int numOfShipsInOrbit;
+
+		private void Start()
         {
             // Initialize the source body reference from the child SystemBody component
             this.sourceBody = this.GetComponentInChildren<SystemBody>();
@@ -37,34 +35,63 @@ namespace SpaceRTS.Factories
         /// computed from the source body's MaxRadius.</remarks>
         public void TrySpawnShip()
         {
-            if (this.sourceBody == null || this.numOfShipsInOrbit >= this.orbitalSlots.Count)
-            {
-                Debug.LogWarning($"Cannot spawn ship: {(this.sourceBody == null ? "Source body is null." : "No available orbital slots.")}");
-                return;
-            }
+			if (this.sourceBody == null)
+				return;
 
-            Ship newShip = Instantiate(this.shipPrefab);
-            newShip.name = $"Ship_{this.numOfShipsInOrbit}_From_{this.sourceBody.name}";
-            newShip.CurrentSystemBody = this.sourceBody;
+			int orbitalSlotCount = this.GetOrbitalSlotCount();
+			if (this.numOfShipsInOrbit >= orbitalSlotCount)            
+                return;            
 
-            var (positionAngle, rotationAngle) = this.orbitalSlots[this.numOfShipsInOrbit];
+			// Get the position and rotation angles for the next available orbital slot
+			float positionAngle = this.numOfShipsInOrbit * 360f / orbitalSlotCount;
+			float rotationAngle = 90f - positionAngle;
             float angle = positionAngle * Mathf.Deg2Rad;
-            float orbitalDistance = this.sourceBody.WorldRadius * 1.25f;
 
-            newShip.transform.parent = this.sourceBody.transform;
-            newShip.transform.localPosition = new Vector3(
-                orbitalDistance * Mathf.Cos(angle),
-                0,
-                orbitalDistance * Mathf.Sin(angle));
-            newShip.transform.rotation = this.sourceBody.transform.rotation * Quaternion.Euler(0, rotationAngle, 0);
-            newShip.transform.localScale = new Vector3(
-                (float)Math.Round(newShip.transform.localScale.x * this.sourceBody.transform.localScale.x, 0),
-                (float)Math.Round(newShip.transform.localScale.y * this.sourceBody.transform.localScale.y, 0),
-                (float)Math.Round(newShip.transform.localScale.z * this.sourceBody.transform.localScale.z, 0));
+			// Calculate the orbital distance based on the source body's radius and a minimum distance
+			float orbitalDistance = this.sourceBody.WorldRadius 
+				+ Mathf.Max(this.sourceBody.WorldRadius * 0.25f, 0.05f);
 
-            Debug.Log($"Spawned {newShip.name} in orbit around {this.sourceBody.name} at slot {this.numOfShipsInOrbit}.");
+			// Calculate the orbital offset and rotation for the new ship
+			Vector3 orbitalOffset = new(
+				orbitalDistance * Mathf.Cos(angle),
+				0,
+				orbitalDistance * Mathf.Sin(angle));
+			Quaternion rotation = this.sourceBody.transform.rotation
+                * Quaternion.Euler(0f, rotationAngle, 0f);
 
+			// Calculate the world position for the new ship based on the source body's position and rotation
+			Vector3 position = this.sourceBody.transform.position
+                + this.sourceBody.transform.rotation * orbitalOffset;
+
+			// Instantiate the ship prefab at the calculated position and rotation,
+			// as a child of the object this ship factory is attached to, and scale it relative to the source body
+			Ship newShip = Instantiate(
+                this.shipPrefab,
+                position,
+                rotation,
+                this.transform);
+			newShip.transform.localScale = this.shipPrefab.transform.localScale * this.shipPrefabScale;
+
+			newShip.CurrentSystemBody = this.sourceBody;		
             this.numOfShipsInOrbit++;
         }
-    }
+
+		/// <summary>
+		/// Calculates the number of orbital slots based on the source body's radius.
+		/// </summary>
+		/// <returns>The calculated orbital slot count, clamped between the configured minimum and maximum values.</returns>
+		private int GetOrbitalSlotCount()
+		{
+			// Calculate the number of additional orbital slots based on the source body's radius
+			// and the configured body radius per additional slot
+			int additionalSlots = Mathf.FloorToInt(
+				this.sourceBody.WorldRadius / this.bodyRadiusPerAdditionalSlot);
+
+			// Clamp the total number of orbital slots between the minimum and maximum values
+			return Mathf.Clamp(
+				this.minOrbitalSlots + additionalSlots,
+				this.minOrbitalSlots,
+				this.maxOrbitalSlots);
+		}
+	}
 }

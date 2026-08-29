@@ -198,6 +198,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shipPrefab: {fileID: 6097181097171975033, guid: 752f0d3cacb1e384cab476af3ebc43fc, type: 3}
+  minOrbitalSlots: 4
+  maxOrbitalSlots: 16
+  bodyRadiusPerAdditionalSlot: 0.05
+  shipPrefabScale: 0.25
 --- !u!114 &-8026526468227089866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,6 +216,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   childBodyPrefab: {fileID: -3663189249271380115, guid: 40f9b5c36949e1d4481ea85ee48f3f64, type: 3}
   orbitalSpeedMultiplier: 0.1
+  orbitalSpeedBands: []
 --- !u!114 &8209864408146794837
 MonoBehaviour:
   m_ObjectHideFlags: 0
