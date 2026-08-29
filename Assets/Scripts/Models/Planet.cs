@@ -17,27 +17,26 @@ namespace SpaceRTS.Models
 
 		private SystemBodyFactory bodyFactory;
 		private MoonFactory moonFactory;
-        private ShipFactory shipFactory;
 
         private void Awake()
         {
 			this.bodyFactory = this.GetComponent<SystemBodyFactory>();
             this.moonFactory = this.GetComponent<MoonFactory>();
-            this.shipFactory = this.GetComponent<ShipFactory>();
         }
 
         /// <summary>
-        /// Spawns a planet body with the specified index, orbital distance, and size.
+        /// Spawns a planet body with the specified index, orbital distance, size, and angular velocity.
         /// The planet's name is set based on the index, and its body is created using the SystemBodyFactory.
         /// After spawning the planet body, moons are spawned around it using the MoonFactory.
         /// </summary>
         /// <param name="index">The index of the planet.</param>
         /// <param name="orbitalDistance">The orbital distance of the planet from its parent body.</param>
         /// <param name="size">The size of the planet.</param>
-        public void Initialise(int index, float orbitalDistance, float size)
+        /// <param name="angularVelocity">The angular velocity of the planet in degrees per second.</param>
+        public void Initialise(int index, float orbitalDistance, float size, float angularVelocity)
         {
 			this.name = $"Planet_{index}";
-			this.Body = this.bodyFactory.SpawnChildBody(orbitalDistance, size);
+			this.Body = this.bodyFactory.SpawnSystemBody(orbitalDistance, size, angularVelocity);
 			this.moonFactory.SpawnMoons(this.Body);
 		}
 	}

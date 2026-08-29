@@ -73,7 +73,10 @@ namespace SpaceRTS.Factories
 				// Instantiate the moon prefab and set its properties
 				Moon moon = Instantiate(this.moonPrefab, this.transform);
 				moon.transform.position = parentBody.transform.position;
-				moon.Initialise(i + 1, orbitalDistance, moonDiameter);
+
+				// Calculate the angular velocity for the moon based on its orbital distance (simplified for demonstration)
+				float angularVelocity = 30f;
+				moon.Initialise(i + 1, orbitalDistance, moonDiameter, angularVelocity);
 
 				this.moons.Add(moon);
 

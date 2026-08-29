@@ -18,11 +18,6 @@ namespace SpaceRTS.Models.Components
         private float degreesPerSecond;
 
         /// <summary>
-        /// Gets the angular velocity of the system body in radians per second.
-        /// </summary>
-        public float AngularVelocity => this.degreesPerSecond * 2 * Mathf.PI / 360;
-
-        /// <summary>
         /// Method called every frame.
         /// </summary>
         private void Update()
@@ -32,11 +27,11 @@ namespace SpaceRTS.Models.Components
         }
 
         /// <summary>
-        /// Sets the orbital speed.
+        /// Sets the rotation speed.
         /// </summary>
         /// <param name="degreesPerSecond">The rotation speed in degrees per second.</param>
         /// <param name="axis">The axis of rotation.</param>
-        public void SetOrbitalSpeed(float degreesPerSecond, Vector3 axis)
+        public void SetRotationSpeed(float degreesPerSecond, Vector3 axis)
         {
             this.axis = axis;
             this.degreesPerSecond = degreesPerSecond;
