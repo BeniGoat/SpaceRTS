@@ -47,29 +47,34 @@ namespace SpaceRTS.Managers
 			// Perform a raycast to determine if a selectable object was clicked
 			ISelectable clicked = this.Raycast(evt.ScreenPosition);
 
-			// If a new object is selected, deselect the previous one and set the camera target to the new selection
-			if (clicked != null && clicked != this.currentSelection)
-			{
-				Debug.Log("New object selected: " + clicked.GetName());
+			// If a new object is selected, deselect the previous one and set the camera target to the new selection.
+			this.Select(clicked != this.currentSelection ? clicked : null);
+		}
 
-                this.Deselect();
-				this.currentSelection = clicked;
+		/// <summary>
+		/// Selects the specified item, updates the camera target, and publishes a selection changed event.
+		/// </summary>
+		/// <param name="selection">The item to select, or null to clear the selection.</param>
+		public void Select(ISelectable selection)
+		{
+			// Deselect the current selection if it exists
+			this.Deselect();
+			this.currentSelection = selection;
+
+			// If a new selection is made, mark it as selected and set the camera target to it.
+			if (this.currentSelection != null)
+			{
 				this.currentSelection.IsSelected = true;
-				
-				if (this.currentSelection.GetTransform() is Transform targetTransform)
-				{
-					this.cameraManager.SetTarget(targetTransform);
-				}
+				this.cameraManager.SetTarget(this.currentSelection.GetTransform());				
 			}
 			else
 			{
-				// If no object is selected, clear the selection and reset the camera target
-				this.Deselect();
+				// If no selection is made, clear the camera target.
 				this.cameraManager.SetTarget(null);
 			}
 
 			// Notify other systems about the selection change
-			EventBus.Publish(new SelectionChangedEvent{ Selection = this.currentSelection });
+			EventBus.Publish(new SelectionChangedEvent { Selection = this.currentSelection });
 		}
 
 		/// <summary>

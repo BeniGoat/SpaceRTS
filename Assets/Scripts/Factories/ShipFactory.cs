@@ -24,23 +24,24 @@ namespace SpaceRTS.Factories
             this.sourceBody = this.GetComponentInChildren<SystemBody>();
         }
 
-        /// <summary>
-        /// Spawns a ship prefab into orbit around the configured source body by instantiating the prefab, naming it,
-        /// assigning its CurrentSystemBody, positioning and orienting it at the next available orbital slot, scaling it
-        /// relative to the source body, invoking OnShipSpawned, logging the spawn, and incrementing the count of ships
-        /// in orbit.
-        /// </summary>
-        /// <remarks>Checks for a valid source body and available orbital slots and logs a warning when
-        /// either is missing. Orbital position and rotation are taken from orbitalSlots and orbital distance is
-        /// computed from the source body's MaxRadius.</remarks>
-        public void TrySpawnShip()
+		/// <summary>
+		/// Spawns a ship prefab into orbit around the configured source body by instantiating the prefab, naming it,
+		/// assigning its CurrentSystemBody, positioning and orienting it at the next available orbital slot, scaling it
+		/// relative to the source body, invoking OnShipSpawned, logging the spawn, and incrementing the count of ships
+		/// in orbit.
+		/// </summary>
+		/// <remarks>Checks for a valid source body and available orbital slots and logs a warning when
+		/// either is missing. Orbital position and rotation are taken from orbitalSlots and orbital distance is
+		/// computed from the source body's MaxRadius.</remarks>
+		/// <returns>The newly spawned ship, or null if spawning was unsuccessful.</returns>
+		public Ship TrySpawnShip()
         {
 			if (this.sourceBody == null)
-				return;
+				return null;
 
 			int orbitalSlotCount = this.GetOrbitalSlotCount();
 			if (this.numOfShipsInOrbit >= orbitalSlotCount)            
-                return;            
+                return null;            
 
 			// Get the position and rotation angles for the next available orbital slot
 			float positionAngle = this.numOfShipsInOrbit * 360f / orbitalSlotCount;
@@ -74,6 +75,8 @@ namespace SpaceRTS.Factories
 
 			newShip.CurrentSystemBody = this.sourceBody;		
             this.numOfShipsInOrbit++;
+
+			return newShip;
         }
 
 		/// <summary>

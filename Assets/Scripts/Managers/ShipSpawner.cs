@@ -69,8 +69,18 @@ namespace SpaceRTS.Managers
                 : null;
             if (shipFactory != null)
             {
-                shipFactory.TrySpawnShip();
-            }
+				// Attempt to spawn a new ship using the ShipFactory
+				Ship newShip = shipFactory.TrySpawnShip();
+
+				// If a new ship was successfully spawned, select it using the SelectionManager
+				ISelectable selectableShip = newShip != null
+                    ? newShip.GetComponent<ISelectable>()
+                    : null;
+				if (selectableShip != null)
+                {
+					ServiceLocator.Get<SelectionManager>().Select(selectableShip);
+				}
+			}
         }
 
 		/// <summary>

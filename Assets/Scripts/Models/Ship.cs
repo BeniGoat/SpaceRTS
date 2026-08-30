@@ -31,7 +31,7 @@ namespace SpaceRTS.Models
         private void Awake()
         {            
             // Configure the selection outline for the ship on awake
-            this.selectable = this.GetComponent<SelectableComponent>();
+            this.selectable = this.GetComponent<ISelectable>();
             this.selectable.ConfigureSelectionOutline(1f);
             this.ConfigureShipPathLine();
         }
