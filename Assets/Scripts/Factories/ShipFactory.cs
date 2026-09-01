@@ -1,12 +1,15 @@
 using SpaceRTS.Models;
+using SpaceRTS.Models.Components;
+using SpaceRTS.Models.Interfaces;
 using UnityEngine;
 
 namespace SpaceRTS.Factories
 {
 	/// <summary>
-	/// Factory responsible for spawning ships in orbit around a source body and managing
-	/// orbital slot capacity through a two-phase reserve-then-commit model.
+	/// Coordinates ship creation and orbital placement for a single source body.
+	/// Slot accounting and orbital transform behavior are delegated to focused collaborators.
 	/// </summary>
+	[RequireComponent(typeof(ShipOrbitController))]
 	public class ShipFactory : MonoBehaviour
 	{
 		[SerializeField] private Ship shipPrefab;
@@ -17,180 +20,168 @@ namespace SpaceRTS.Factories
 		[SerializeField, Min(0.1f)] private float shipPrefabScale = 0.25f;
 
 		private SystemBody sourceBody;
-		private Transform orbit;
-
-		/// <summary>Number of ships physically in orbit (committed occupants).</summary>
-		private int occupiedSlots;
-
-		/// <summary>Number of en-route ships that have reserved a slot but not yet arrived.</summary>
-		private int reservedSlots;
-
-		private int orbitalSlotCount;
+		private ShipOrbitController orbitController;
+		private OrbitalSlotRegistry slotRegistry;
+		private IOrbitalLayoutStrategy orbitalLayout;
 
 		/// <summary>
-		/// Total slots committed (occupied + reserved). Used to prevent overbooking.
+		/// Gets a value indicating whether there are available orbital slots.
 		/// </summary>
-		private int CommittedSlots => this.occupiedSlots + this.reservedSlots;
+		public bool HasOrbitalSlots => this.slotRegistry != null && this.slotRegistry.HasAvailableSlots;
 
 		private void Start()
 		{
-			// Initialize the source body reference from the child SystemBody component and
-			// calculate the number of orbital slots based on the source body's radius
 			this.sourceBody = this.GetComponentInChildren<SystemBody>();
-			this.orbitalSlotCount = this.GetOrbitalSlotCount();
+			if (this.sourceBody == null)
+				return;
 
-			// Create a dedicated "Orbit" GameObject to serve as the parent for ships in orbit around the source body
-			// Its rotation is kept in sync with the body in LateUpdate so that ships
-			// parented here follow the body's axial spin without inheriting its scale.
-			this.orbit = new GameObject("Orbit").transform;
-			this.orbit.SetParent(this.transform, worldPositionStays: false);
-			this.orbit.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-		}
+			// Initialize the orbital slot registry and layout strategy based on the source body's properties.
+			int orbitalSlotCount = this.GetOrbitalSlotCount();
+			this.slotRegistry = new OrbitalSlotRegistry(orbitalSlotCount);
+			this.orbitalLayout = new ClockwiseCircularOrbitalLayout();
 
-		private void LateUpdate()
-		{
-			// Mirror the source body's local position and rotation so orbital positions
-			// automatically follow both the body's movement and its axial spin.
-			if (this.sourceBody != null && this.orbit != null)
-			{
-				this.orbit.SetLocalPositionAndRotation(
-					this.sourceBody.transform.localPosition,
-					this.sourceBody.transform.localRotation);
-			}
+			// Initialize the orbit controller with the source body and layout strategy.
+			this.orbitController = this.GetComponent<ShipOrbitController>();
+			this.orbitController.Initialise(this.sourceBody, this.orbitalLayout);
 		}
 
 		/// <summary>
 		/// Returns the <see cref="ShipFactory"/> associated with a given <see cref="SystemBody"/>,
 		/// searching up the hierarchy if needed.
 		/// </summary>
-		/// <param name="body">The system body to find a factory for.</param>
-		/// <returns>The associated <see cref="ShipFactory"/>, or <c>null</c> if none exists.</returns>
+		/// <param name="body">The system body for which to find the associated ship factory.</param>
+		/// <returns>The <see cref="ShipFactory"/> associated with the given system body, or null if none is found.</returns>
 		public static ShipFactory GetForBody(SystemBody body)
 		{
-			if (body == null)
-				return null;
+			if (body == null)			
+				return null;			
 
-			// Walk up the hierarchy to find the nearest ShipFactory
 			return body.GetComponentInParent<ShipFactory>(includeInactive: false);
 		}
 
 		/// <summary>
-		/// Attempts to reserve an orbital slot for a ship that is about to travel to this body.
-		/// A reservation prevents overbooking while the ship is in transit.
+		/// Attempts to reserve an orbital slot for an incoming ship.
 		/// </summary>
-		/// <returns><c>true</c> if a slot was successfully reserved; otherwise <c>false</c>.</returns>
-		public bool TryReserveSlot()
+		/// <param name="reservation">The reserved orbital slot.</param>
+		/// <returns>True if a slot was successfully reserved; otherwise, false.</returns>
+		public bool TryReserveSlot(out OrbitalSlotReservation reservation)
 		{
-			if (this.CommittedSlots >= this.orbitalSlotCount)
+			if (this.slotRegistry == null)
+			{
+				reservation = OrbitalSlotReservation.None;
+				return false;
+			}
+
+			return this.slotRegistry.TryReserve(out reservation);
+		}
+
+		/// <summary>
+		/// Releases a previously reserved slot.
+		/// </summary>
+		/// <param name="reservation">The reserved orbital slot to release.</param>
+		/// <returns>True if the reservation was successfully released; otherwise, false.</returns>
+		public bool ReleaseReservation(OrbitalSlotReservation reservation)
+		{
+			return this.slotRegistry != null && this.slotRegistry.ReleaseReservation(reservation);
+		}
+
+		/// <summary>
+		/// Frees a specific occupied slot when a ship departs.
+		/// </summary>
+		/// <param name="occupiedSlot">The occupied orbital slot to free.</param>
+		/// <returns>True if the occupied slot was successfully freed; otherwise, false.</returns>
+		public bool NotifyDeparture(OrbitalOccupiedSlot occupiedSlot)
+		{
+			return this.slotRegistry != null && this.slotRegistry.ReleaseOccupied(occupiedSlot);
+		}
+
+		/// <summary>
+		/// Commits a reservation and places the arriving ship in the associated slot.
+		/// </summary>
+		/// <param name="ship">The ship to place in the reserved slot.</param>
+		/// <param name="reservation">The reserved orbital slot.</param>
+		/// <param name="occupiedSlot">The occupied orbital slot after the ship is placed.</param>
+		/// <returns>True if the ship was successfully placed in the reserved slot; otherwise, false.</returns>
+		public bool CommitReservedArrival(
+			Ship ship,
+			OrbitalSlotReservation reservation,
+			out OrbitalOccupiedSlot occupiedSlot)
+		{
+			occupiedSlot = OrbitalOccupiedSlot.None;
+			if (ship == null || this.slotRegistry == null || this.sourceBody == null || this.orbitController == null)
 				return false;
 
-			this.reservedSlots++;
+			// If the reservation is invalid or cannot be committed, return false.
+			if (!this.slotRegistry.TryCommitReservation(reservation, out OrbitalOccupiedSlot committedSlot))
+				return false;
+
+			// Attempt to place the ship in the committed slot.
+			bool isPlaced = this.orbitController.TryPlaceShip(
+				ship,
+				committedSlot.SlotIndex,
+				this.slotRegistry.SlotCount,
+				this.sourceBody.OrbitalRadius);
+
+			// If placement fails, release the occupied slot and return false.
+			if (!isPlaced)
+			{
+				this.slotRegistry.ReleaseOccupied(committedSlot);
+				return false;
+			}
+
+			ship.CurrentSystemBody = this.sourceBody;
+			occupiedSlot = committedSlot;
 			return true;
 		}
 
 		/// <summary>
-		/// Releases a previously reserved slot without completing travel.
-		/// Call this when a travel order is replaced before the ship arrives.
+		/// Spawns a ship and places it in the next available orbit slot.
 		/// </summary>
-		public void ReleaseReservation()
+		public Ship GenerateShipInOrbit(out OrbitalOccupiedSlot occupiedSlot)
 		{
-			this.reservedSlots = Mathf.Max(0, this.reservedSlots - 1);
-		}
-
-		/// <summary>
-		/// Notifies this factory that a ship has departed from its orbit, freeing one occupied slot.
-		/// </summary>
-		public void NotifyDeparture()
-		{
-			this.occupiedSlots = Mathf.Max(0, this.occupiedSlots - 1);
-		}
-
-		/// <summary>
-		/// Converts an existing reservation into an occupied slot and places the ship in orbit.
-		/// The caller must have previously called <see cref="TryReserveSlot"/> on this factory.
-		/// </summary>
-		/// <param name="ship">The arriving ship to place in orbit.</param>
-		/// <returns>The ship after being placed, or <c>null</c> if placement was unsuccessful.</returns>
-		public Ship CommitReservedArrival(Ship ship)
-		{
-			// Consume the reservation regardless of whether placement succeeds
-			this.reservedSlots = Mathf.Max(0, this.reservedSlots - 1);
-
-			if (this.sourceBody == null || ship == null)
+			occupiedSlot = OrbitalOccupiedSlot.None;
+			if (this.slotRegistry == null || this.sourceBody == null || this.orbitController == null)
+			{
 				return null;
+			}
 
-			// Calculate the local position and rotation for the arriving ship
-			(Quaternion localRotation, Vector3 localPosition) = this.CalculateOrbitalLocalTransform();
-
-			// Place the ship in orbit around the source body
-			ship.transform.SetParent(this.orbit, worldPositionStays: true);
-			ship.transform.SetLocalPositionAndRotation(localPosition, localRotation);
-			ship.CurrentSystemBody = this.sourceBody;
-
-			this.occupiedSlots++;
-			return ship;
-		}
-
-		/// <summary>
-		/// Spawns a new ship prefab into orbit around the configured source body.
-		/// </summary>
-		/// <returns>The newly spawned ship, or <c>null</c> if spawning was unsuccessful.</returns>
-		public Ship GenerateShipInOrbit()
-		{
-			// Check if the source body is valid and if there are available slots
-			if (this.sourceBody == null || this.CommittedSlots >= this.orbitalSlotCount)
+			if (!this.slotRegistry.TryOccupyNext(out OrbitalOccupiedSlot committedSlot))
+			{
 				return null;
+			}
 
-			// Calculate the local position and rotation for the new ship based on the next available orbital slot
-			(Quaternion localRotation, Vector3 localPosition) = this.CalculateOrbitalLocalTransform();
+			Ship newShip = Instantiate(this.shipPrefab);
+			bool placed = this.orbitController.TryPlaceShip(
+				newShip,
+				committedSlot.SlotIndex,
+				this.slotRegistry.SlotCount,
+				this.sourceBody.OrbitalRadius);
+			if (!placed)
+			{
+				Destroy(newShip.gameObject);
+				this.slotRegistry.ReleaseOccupied(committedSlot);
+				return null;
+			}
 
-			// Instantiate the ship prefab and set its transform relative to the source body
-			Ship newShip = Instantiate(this.shipPrefab, this.orbit);
-			newShip.transform.SetLocalPositionAndRotation(localPosition, localRotation);
 			newShip.transform.localScale = this.shipPrefab.transform.localScale * this.shipPrefabScale;
 			newShip.CurrentSystemBody = this.sourceBody;
-
-			this.occupiedSlots++;
+			occupiedSlot = committedSlot;
 			return newShip;
 		}
 
 		/// <summary>
-		/// Calculates the local position and local rotation for placing an object at the
-		/// next available orbital slot around the source body.
+		/// Backward-compatible overload returning only the spawned ship.
 		/// </summary>
-		/// <returns>A tuple containing the local rotation and local position for the orbital placement.</returns>
-		private (Quaternion, Vector3) CalculateOrbitalLocalTransform()
+		public Ship GenerateShipInOrbit()
 		{
-			// Place the ship at the next occupied-slot position
-			float positionAngle = this.occupiedSlots * 360f / this.orbitalSlotCount;
-			float angle = positionAngle * Mathf.Deg2Rad;
-			float orbitalDistance = this.sourceBody.OrbitalRadius;
-
-			// Calculate the local position and rotation based on the orbital distance and angle
-			Vector3 localPosition = new(
-				orbitalDistance * Mathf.Cos(angle),
-				0,
-				-orbitalDistance * Mathf.Sin(angle));
-
-			// The tangent direction at angle θ is (-sinθ, 0, cosθ), which equals Euler(0, -θ, 0)
-			// applied to Z+, so rotating by positionAngle around Y faces the ship tangentially
-			Quaternion localRotation = Quaternion.Euler(0f, positionAngle + 180f, 0f);
-
-			return (localRotation, localPosition);
+			return this.GenerateShipInOrbit(out _);
 		}
 
-		/// <summary>
-		/// Calculates the number of orbital slots based on the source body's radius.
-		/// </summary>
-		/// <returns>The calculated orbital slot count, clamped between the configured minimum and maximum values.</returns>
 		private int GetOrbitalSlotCount()
 		{
-			// Calculate the number of additional orbital slots based on the source body's radius
-			// and the configured body radius per additional slot
 			int additionalSlots = Mathf.FloorToInt(
 				this.sourceBody.WorldRadius / this.bodyRadiusPerAdditionalSlot);
 
-			// Clamp the total number of orbital slots between the minimum and maximum values
 			return Mathf.Clamp(
 				this.minOrbitalSlots + additionalSlots,
 				this.minOrbitalSlots,

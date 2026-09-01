@@ -7,110 +7,90 @@ using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
-    /// <summary>
-    /// Manages spawning of ships when a system body is selected and the build input is received.
-    /// </summary>
-    public class ShipSpawner : MonoBehaviour
-    {
-        private ISelectable currentSelection;
+	/// <summary>
+	/// Manages spawning of ships when a system body is selected and the build input is received.
+	/// </summary>
+	public class ShipSpawner : MonoBehaviour
+	{
+		/// <summary>
+		/// The currently selected object in the game.
+		/// This is used to determine where to spawn a ship when the build input is received.
+		/// </summary>
+		private ISelectable currentSelection;
+
+		/// <summary>
+		/// Resolves selection bodies for selection operations.
+		/// </summary>
+		private ISelectionBodyResolver selectionBodyResolver;
 
 		private void Awake()
 		{
 			ServiceLocator.Register(this);
+
+			// Ensure that a SelectionBodyResolver is registered in the ServiceLocator. If not, create and register a new instance.
+			if (!ServiceLocator.TryGet(out this.selectionBodyResolver))
+			{
+				this.selectionBodyResolver = new SelectionBodyResolver();
+				ServiceLocator.Register(this.selectionBodyResolver);
+			}
 		}
 
 		private void OnEnable()
-        {
-            Debug.Log("[ShipSpawner] OnEnable - Subscribing to events");
-            EventBus.Subscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
-            EventBus.Subscribe<BuildInputEvent>(this.HandleBuildInput);
-        }
+		{
+			EventBus.Subscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
+			EventBus.Subscribe<BuildInputEvent>(this.HandleBuildInput);
+		}
 
-        private void OnDisable()
-        {
-            Debug.Log("[ShipSpawner] OnDisable - Unsubscribing from events");
-            EventBus.Unsubscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
-            EventBus.Unsubscribe<BuildInputEvent>(this.HandleBuildInput);
-        }
+		private void OnDisable()
+		{
+			EventBus.Unsubscribe<SelectionChangedEvent>(this.HandleSelectionChanged);
+			EventBus.Unsubscribe<BuildInputEvent>(this.HandleBuildInput);
+		}
 
-        private void HandleSelectionChanged(SelectionChangedEvent evt)
-        {
-            Debug.Log($"[ShipSpawner] Selection changed to: {(evt.Selection != null ? evt.Selection.GetName() : "null")}");
-            this.currentSelection = evt.Selection;
-        }
+		/// <summary>
+		/// Handles the selection changed event to update the current selection.
+		/// </summary>
+		/// <param name="evt">The selection changed event.</param>
+		private void HandleSelectionChanged(SelectionChangedEvent evt) => this.currentSelection = evt.Selection;
 
 		/// <summary>
 		/// Handles the build input event by attempting to spawn a ship at the currently selected system body.
 		/// </summary>
 		/// <param name="evt">The build input event.</param>
 		private void HandleBuildInput(BuildInputEvent evt)
-        {
-            this.TrySpawnShipAtSelection();
-        }
+		{
+			this.TrySpawnShipAtSelection();
+		}
 
 		/// <summary>
 		/// Attempts to spawn a ship at the currently selected system body if it has a ShipFactory.
 		/// </summary>
 		private void TrySpawnShipAtSelection()
-        {
-            // Check if we have a selected system body
-            if (this.currentSelection == null)
-                return;
+		{
+			if (this.currentSelection == null)			
+				return;
 
-            // Try to get the SystemBody component from the selected object
-            SystemBody selectedBody = this.GetSystemBodyFromSelection(this.currentSelection);
-            if (selectedBody == null)
-                return;
-
+			// Resolve the selected system body from the current selection. If no system body is found, return early.
+			SystemBody selectedBody = this.selectionBodyResolver.Resolve(this.currentSelection);
+			if (selectedBody == null)
+				return;			
+			
+			// Get the ship factory for the selected system body. If no ship factory is found, return early.
 			ShipFactory shipFactory = ShipFactory.GetForBody(selectedBody);
-			if (shipFactory != null)
+			if (shipFactory == null)
+				return;
+
+			// Generate a new ship in orbit using the ship factory. If no ship can be generated, return early.
+			Ship newShip = shipFactory.GenerateShipInOrbit(out OrbitalOccupiedSlot occupiedSlot);
+			if (newShip == null)
+				return;
+
+			// Set the ship in orbit at the occupied slot and publish a ShipBuiltEvent if the ship is selectable.
+			newShip.SetInOrbit(occupiedSlot);
+			if (newShip.TryGetComponent<ISelectable>(out var selectableShip))
 			{
-			    // Attempt to spawn a new ship using the ShipFactory
-				Ship newShip = shipFactory.GenerateShipInOrbit();
-
-				if (newShip != null)
-				{
-					// Mark the ship as being in orbit so departure tracking works correctly
-					newShip.SetInOrbit();
-
-					// If a new ship was successfully spawned, select it using the SelectionManager
-					ISelectable selectableShip = newShip.GetComponent<ISelectable>();
-					if (selectableShip != null)
-					{
-						ServiceLocator.Get<SelectionManager>().Select(selectableShip);
-					}
-				}
+				EventBus.Publish(new ShipBuiltEvent { ShipSelection = selectableShip });
 			}
-        }
-
-		/// <summary>
-		/// Attempts to retrieve the SystemBody component from the selected object.
-        /// If the selected object is a Ship, it will return the CurrentSystemBody of that ship.
-        /// If no valid SystemBody is found, it returns null.
-		/// </summary>
-		/// <param name="selectable">The selectable object to retrieve the SystemBody from.</param>
-		/// <returns>The SystemBody component if found; otherwise, null.</returns>
-		private SystemBody GetSystemBodyFromSelection(ISelectable selectable)
-        {
-			// Check if the selectable is a SelectableComponent
-			if (selectable is SelectableComponent selectableComponent)
-            {
-				// First, check if the selectable's GameObject has a SystemBody component
-				SystemBody body = selectableComponent != null 
-                    ? selectableComponent.gameObject.GetComponent<SystemBody>() 
-                    : null;
-                if (body != null)                
-                    return body;                
-
-				// If not, check if the selectable's GameObject has a Ship component and get its CurrentSystemBody
-				Ship ship = selectableComponent != null 
-                    ? selectableComponent.gameObject.GetComponent<Ship>() 
-                    : null;
-                if (ship != null && ship.CurrentSystemBody != null)                
-                    return ship.CurrentSystemBody;                
-            }
-            
-            return null;
-        }
-    }
+		}
+	}
 }

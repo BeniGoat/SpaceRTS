@@ -33,11 +33,14 @@ namespace SpaceRTS.Managers
 				}
 
 				// Check if the ship has arrived at its destination.
-				// If it has, complete its travel and remove it from the active ships list.
+				// If it has, we attempt to complete its travel and remove it from the active ships list if successful.
 				if (ship.HasArrived)
 				{
-					ship.CompleteTravel();
-					this.activeShips.RemoveAt(i);
+					if (ship.CompleteTravel())
+					{
+						this.activeShips.RemoveAt(i);
+					}
+
 					continue;
 				}
 

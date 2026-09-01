@@ -13,20 +13,26 @@ namespace SpaceRTS.Models
 	{
 		[SerializeField] private float travelSpeed = 1f;
 		[SerializeField] private Color pathLineColour = new Color(0.1f, 1, 0.1f, 0.5f);
+		[SerializeField] private float travelFacingYawOffsetDegrees = 0f;
 
 		private ISelectable selectable;
 		private LineRenderer path;
 		private SystemBody destinationBody;
 
 		/// <summary>
-		/// Tracks the factory at which this ship has a reserved orbital slot.
+		/// Tracks the factory at which this ship currently has a reserved destination slot.
 		/// </summary>
 		private ShipFactory destinationFactory;
 
 		/// <summary>
-		/// True while the ship is physically present in an orbital slot (not in transit).
+		/// Reservation handle for the destination slot while the ship is in transit.
 		/// </summary>
-		private bool isInOrbit;
+		private OrbitalSlotReservation destinationReservation;
+
+		/// <summary>
+		/// Occupied slot handle for the ship's current orbit location.
+		/// </summary>
+		private OrbitalOccupiedSlot occupiedSlot;
 
 		/// <summary>
 		/// Gets or sets the current system body where the ship is located.
@@ -39,8 +45,7 @@ namespace SpaceRTS.Models
 		internal bool HasArrived { get; private set; }
 
 		private void Awake()
-		{            
-			// Configure the selection outline for the ship on awake
+		{
 			this.selectable = this.GetComponent<SelectableComponent>();
 			this.selectable.ConfigureSelectionOutline(1f);
 			this.ConfigureShipPathLine();
@@ -48,43 +53,40 @@ namespace SpaceRTS.Models
 
 		/// <summary>
 		/// Attempts to set the destination system body for the ship.
-		/// If the destination is valid and has a free slot, the ship reserves that slot,
-		/// releases its current orbital slot exactly once, and detaches from its source parent.
-		/// If the ship already has a pending reservation for a different factory, that reservation
-		/// is released before the new one is made.
+		/// A valid destination reserves a specific slot at the target factory.
 		/// </summary>
 		/// <param name="target">The target system body to set as the destination.</param>
-		/// <returns><c>true</c> if the destination was accepted; <c>false</c> if the target has no valid factory or no free slots.</returns>
+		/// <returns>True if the destination was successfully set; otherwise, false.</returns>
 		public bool SetDestination(SystemBody target)
 		{
+			// Reserve a slot at the target factory for the ship's arrival.
 			ShipFactory targetFactory = ShipFactory.GetForBody(target);
-			if (targetFactory == null || !targetFactory.TryReserveSlot())
+			if (targetFactory == null || !targetFactory.TryReserveSlot(out OrbitalSlotReservation targetReservation))
 				return false;
 
-			// Release any existing reservation at the previous destination factory
-			if (this.destinationFactory != null)
-				this.destinationFactory.ReleaseReservation();
-
-			// If the ship is still in orbit (first order since spawning or arrival), notify departure
-			if (this.isInOrbit)
+			// Release the current occupied slot if the ship is already in orbit.
+			if (this.occupiedSlot.IsValid)
 			{
 				ShipFactory sourceFactory = ShipFactory.GetForBody(this.CurrentSystemBody);
-				if (sourceFactory == null)
+				if (sourceFactory == null || !sourceFactory.NotifyDeparture(this.occupiedSlot))
 				{
-					Debug.LogWarning($"Ship {this.name} is in orbit at {this.CurrentSystemBody.name}, but no source factory was found.");
-					targetFactory.ReleaseReservation(); // ← release the slot we just claimed
+					targetFactory.ReleaseReservation(targetReservation);
 					return false;
 				}
-				
-				sourceFactory.NotifyDeparture();
-				this.isInOrbit = false;
 
-				// Detach from the source parent so the ship travels in world space
+				this.occupiedSlot = OrbitalOccupiedSlot.None;
 				this.transform.SetParent(null, worldPositionStays: true);
+			}
+
+			// Replace previous destination reservation only after the new reservation is secured.
+			if (this.destinationFactory != null && this.destinationReservation.IsValid)
+			{
+				this.destinationFactory.ReleaseReservation(this.destinationReservation);
 			}
 
 			this.destinationBody = target;
 			this.destinationFactory = targetFactory;
+			this.destinationReservation = targetReservation;
 			this.HasArrived = false;
 			this.path.enabled = true;
 			this.path.forceRenderingOff = false;
@@ -92,11 +94,13 @@ namespace SpaceRTS.Models
 		}
 
 		/// <summary>
-		/// Configures the LineRenderer component for the ship's path line visualization.
+		/// Initializes and configures the ship path LineRenderer with path display defaults, width, color gradient,
+		/// world-space rendering, and two positions.
 		/// </summary>
+		/// <remarks>Disables rendering initially, sets non-looping world-space behavior, applies a semi-transparent
+		/// start color based on the configured path line color, and sets a fixed thin line width.</remarks>
 		private void ConfigureShipPathLine()
 		{
-			// Configure the LineRenderer component for the ship's path line visualization
 			this.path = this.GetComponent<LineRenderer>();
 			this.path.enabled = false;
 			this.path.forceRenderingOff = true;
@@ -114,8 +118,7 @@ namespace SpaceRTS.Models
 		}
 
 		/// <summary>
-		/// Updates the positions of the path line renderer to visualize the path
-		/// from the current system body to the destination system body.
+		/// Updates the path line endpoints to the current object position and the destination body's position.
 		/// </summary>
 		private void UpdatePathLine()
 		{
@@ -124,53 +127,65 @@ namespace SpaceRTS.Models
 		}
 
 		/// <summary>
-		/// Completes the ship's travel by committing its reserved orbital slot at the destination.
-		/// The ship is moved into orbit, its <see cref="CurrentSystemBody"/> is updated, and
-		/// the path line is disabled. If placement fails, the reservation has already been consumed.
+		/// Commits the reserved destination slot and places the ship in orbit.
 		/// </summary>
-		internal void CompleteTravel()
+		/// <returns><c>true</c> if the travel was successfully completed; otherwise, <c>false</c>.</returns>
+		internal bool CompleteTravel()
 		{
-			if (this.destinationFactory == null)
-				return;
+			if (this.destinationFactory == null || !this.destinationReservation.IsValid)			
+				return false;
 
-			// Commit the reserved slot and place the ship in orbit
-			this.destinationFactory.CommitReservedArrival(this);
+			// Commit the reserved slot at the destination factory.
+			// If the commit fails, keep the route context and continue trying on later frames.
+			if (!this.destinationFactory.CommitReservedArrival(
+				this,
+				this.destinationReservation,
+				out OrbitalOccupiedSlot committedSlot))
+			{
+				// Keep route context and continue trying on later frames.
+				this.HasArrived = false;
+				return false;
+			}
 
+			this.occupiedSlot = committedSlot;
 			this.destinationFactory = null;
+			this.destinationReservation = OrbitalSlotReservation.None;
 			this.destinationBody = null;
 			this.HasArrived = false;
-			this.isInOrbit = true;
 			this.path.enabled = false;
 			this.path.forceRenderingOff = true;
+			return true;
 		}
 
 		/// <summary>
-		/// Processes the ship's travel towards its destination system body based on the specified delta time.
-		/// When the ship enters the destination's orbital radius, <see cref="HasArrived"/> is set to <c>true</c>.
+		/// Advances travel toward the current destination body, updates orientation and path visualization, and marks arrival
+		/// when within the destination orbital radius.
 		/// </summary>
-		/// <param name="deltaTime">The time elapsed since the last frame.</param>
+		/// <remarks>Returns immediately when no destination body is set.</remarks>
+		/// <param name="deltaTime">Elapsed time since the previous update, in seconds.</param>
 		internal void ProcessTravel(float deltaTime)
 		{
-			// If there is no destination body set, return early
-			if (this.destinationBody == null)
-			{
+			if (this.destinationBody == null)			
 				return;
-			}
 
-			// Move the ship towards the destination body at the specified travel speed
+			// Move the ship towards the destination body at the specified travel speed, scaled by deltaTime.
 			Vector3 targetPosition = this.destinationBody.transform.position;
 			this.transform.position = Vector3.MoveTowards(
 				this.transform.position,
 				targetPosition,
 				this.travelSpeed * deltaTime);
 
-			// Rotate the ship so that the ship is pointing towards the destination body
-			this.transform.LookAt(targetPosition);
+			// Update the ship's rotation to face the direction of travel, applying any yaw offset for visual orientation.
+			Vector3 direction = targetPosition - this.transform.position;
+			if (direction.sqrMagnitude > 0f)
+			{
+				this.transform.rotation =
+					Quaternion.LookRotation(direction) *
+					Quaternion.Euler(0f, this.travelFacingYawOffsetDegrees, 0f);
+			}
 
-			//Update the path line to reflect the ship's current position and the destination
 			this.UpdatePathLine();
 
-			// Check if the ship has arrived at the destination body based on the orbital radius
 			if (Vector3.Distance(this.transform.position, targetPosition) <= this.destinationBody.OrbitalRadius)
 			{
 				this.HasArrived = true;
@@ -178,11 +193,9 @@ namespace SpaceRTS.Models
 		}
 
 		/// <summary>
-		/// Marks this ship as being in orbit. Called after the ship is first placed in an orbital slot.
+		/// Marks this ship as occupying a specific orbit slot.
 		/// </summary>
-		internal void SetInOrbit()
-		{
-			this.isInOrbit = true;
-		}
+		/// <param name="slot">The orbital slot to occupy.</param>
+		internal void SetInOrbit(OrbitalOccupiedSlot slot) => this.occupiedSlot = slot;
 	}
 }

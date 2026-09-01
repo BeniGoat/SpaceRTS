@@ -14,13 +14,11 @@ namespace SpaceRTS.Models
 		public SystemBody Body { get; private set; }
 
 		private SystemBodyFactory bodyFactory;
-        private ShipFactory shipFactory;
 
-        private void Awake()
-        {
-            this.bodyFactory = this.GetComponent<SystemBodyFactory>();
-            this.shipFactory = this.GetComponent<ShipFactory>();
-        }
+		private void Awake()
+		{
+			this.bodyFactory = this.GetComponent<SystemBodyFactory>();
+		}
 
 		/// <summary>
 		/// Initialises the moon body with the specified orbital and size parameters.

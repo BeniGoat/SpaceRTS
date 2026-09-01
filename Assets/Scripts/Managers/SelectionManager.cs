@@ -10,7 +10,7 @@ namespace SpaceRTS.Managers
 	/// It listens for selection input events and performs raycasting to determine which object is selected.
 	/// It maintains the current selection state and notifies other systems when the selection changes.
 	/// </summary>
-	public class SelectionManager : MonoBehaviour
+	public class SelectionManager : MonoBehaviour, ISelectionService
     {		
         private CameraManager cameraManager;
 		private ISelectable currentSelection;
@@ -18,6 +18,7 @@ namespace SpaceRTS.Managers
 		private void Awake()
 		{
 			ServiceLocator.Register(this);
+			ServiceLocator.Register<ISelectionService>(this);
 		}
 
 		private void Start()
@@ -51,10 +52,7 @@ namespace SpaceRTS.Managers
 			this.Select(clicked != this.currentSelection ? clicked : null);
 		}
 
-		/// <summary>
-		/// Selects the specified item, updates the camera target, and publishes a selection changed event.
-		/// </summary>
-		/// <param name="selection">The item to select, or null to clear the selection.</param>
+		/// <inheritdoc/>
 		public void Select(ISelectable selection)
 		{
 			// Deselect the current selection if it exists

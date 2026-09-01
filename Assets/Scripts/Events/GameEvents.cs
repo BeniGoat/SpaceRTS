@@ -13,6 +13,14 @@ namespace SpaceRTS.Events
 	}
 
 	/// <summary>
+	/// Raised when a ship is successfully built at a body.
+	/// </summary>
+	public struct ShipBuiltEvent
+	{
+		public ISelectable ShipSelection;
+	}
+
+	/// <summary>
 	/// Raised when the effective game speed changes (including pause/unpause).
 	/// </summary>
 	public struct SpeedChangedEvent
