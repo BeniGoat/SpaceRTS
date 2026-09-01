@@ -63,17 +63,13 @@ namespace SpaceRTS.Managers
 			// Perform a raycast from the camera to the screen position of the command input event
 			Ray ray = this.cameraManager.SendRay(evt.ScreenPosition);
 
-			// If a system body is hit and it's not the current system body of the ship, set it as the destination
+			// If a system body is hit and it's not the ship's current system body, attempt to set it as the destination.
+			// Invalid targets, full destinations, and clicks on the source body are all silent no-ops.
 			if (Physics.Raycast(ray, out RaycastHit hit) &&
 				hit.transform.TryGetComponent(out SystemBody targetBody) &&
 				targetBody != ship.CurrentSystemBody)
 			{
 				this.movementManager.SetDestination(ship, targetBody);
-			}
-			else
-			{
-				// If no valid system body is hit, clear the ship's destination
-				this.movementManager.ClearDestination(ship);
 			}
 		}
 	}

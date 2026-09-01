@@ -62,23 +62,23 @@ namespace SpaceRTS.Managers
             if (selectedBody == null)
                 return;
 
-			// The ShipFactory is on the Planet/Moon parent container of the SystemBody.
-            // We need to check if the selected body has a parent and get the ShipFactory from it.
-			ShipFactory shipFactory = selectedBody.transform.parent != null 
-                ? selectedBody.transform.parent.GetComponent<ShipFactory>() 
-                : null;
-            if (shipFactory != null)
-            {
-				// Attempt to spawn a new ship using the ShipFactory
-				Ship newShip = shipFactory.TrySpawnShip();
+			ShipFactory shipFactory = ShipFactory.GetForBody(selectedBody);
+			if (shipFactory != null)
+			{
+			    // Attempt to spawn a new ship using the ShipFactory
+				Ship newShip = shipFactory.GenerateShipInOrbit();
 
-				// If a new ship was successfully spawned, select it using the SelectionManager
-				ISelectable selectableShip = newShip != null
-                    ? newShip.GetComponent<ISelectable>()
-                    : null;
-				if (selectableShip != null)
-                {
-					ServiceLocator.Get<SelectionManager>().Select(selectableShip);
+				if (newShip != null)
+				{
+					// Mark the ship as being in orbit so departure tracking works correctly
+					newShip.SetInOrbit();
+
+					// If a new ship was successfully spawned, select it using the SelectionManager
+					ISelectable selectableShip = newShip.GetComponent<ISelectable>();
+					if (selectableShip != null)
+					{
+						ServiceLocator.Get<SelectionManager>().Select(selectableShip);
+					}
 				}
 			}
         }

@@ -37,14 +37,19 @@ namespace SpaceRTS.Models
 		/// Gets the body's maximum local-space radius.
 		/// </summary>
 		public float LocalRadius
+		{
+			get
 			{
-				get
-				{
-					// Calculate the local radius based on the local scale of the transform.
-					Vector3 scale = this.transform.localScale;
-					return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
-				}
+				// Calculate the local radius based on the local scale of the transform.
+				Vector3 scale = this.transform.localScale;
+				return Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
 			}
+		}
+
+		/// <summary>
+		/// Radius at which objects orbit around the system body, based on the world radius and a minimum offset.
+		/// </summary>
+		public float OrbitalRadius => this.WorldRadius + Mathf.Max(this.WorldRadius * 0.25f, 0.05f);
 
 		/// <summary>
 		/// Gets the body's mass calculated from its local radius.

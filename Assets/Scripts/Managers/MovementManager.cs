@@ -9,7 +9,7 @@ namespace SpaceRTS.Managers
 	/// Manages the movement of ships in the game, including setting destinations and processing travel over time.
 	/// </summary>
 	public class MovementManager : MonoBehaviour
-    {
+	{
 		private readonly List<Ship> activeShips = new();
 
 		private void Awake()
@@ -47,7 +47,9 @@ namespace SpaceRTS.Managers
 		}
 
 		/// <summary>
-		/// Sets the destination for a given ship and adds it to the active ships list if it's not already present.
+		/// Attempts to set the destination for a given ship.
+		/// If the destination is accepted, the ship is added to the active ships list if not already present.
+		/// If the destination is rejected (no factory or no free slot), the existing order is left unchanged.
 		/// </summary>
 		/// <param name="ship">The ship to set the destination for.</param>
 		/// <param name="destination">The destination system body.</param>
@@ -55,33 +57,15 @@ namespace SpaceRTS.Managers
 		{
 			// Validate the ship and destination before proceeding.
 			if (ship == null || destination == null)
-			{
 				return;
-			}
 
-			ship.SetDestination(destination);
+			bool accepted = ship.SetDestination(destination);
 
-			// Add the ship to the active ships list if it's not already present.
-			if (!this.activeShips.Contains(ship))
+			// Only register the ship if the order was accepted and it is not already traveling.
+			if (accepted && !this.activeShips.Contains(ship))
 			{
 				this.activeShips.Add(ship);
 			}
-		}
-
-		/// <summary>
-		/// Clears the destination for a given ship and removes it from the active ships list.
-		/// </summary>
-		/// <param name="ship">The ship to clear the destination for.</param>
-		public void ClearDestination(Ship ship)
-		{
-			// Validate the ship before proceeding.
-			if (ship == null)
-			{
-				return;
-			}
-
-			ship.ClearDestination();
-			this.activeShips.Remove(ship);
 		}
 	}
 }
