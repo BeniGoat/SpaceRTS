@@ -22,20 +22,20 @@ namespace SpaceRTS.Factories
         [Serializable]
         private struct OrbitalSpeedBand
         {
-            // Example Inspector configuration:
-            // Minimum Distance: 0.5 - Speed Multiplier: 0.05
-            // Minimum Distance: 2.0 - Speed Multiplier: 0.15
-            // Minimum Distance: 5.0 - Speed Multiplier: 0.5
-            // Minimum Distance: 15.0 - Speed Multiplier: 1.0
-
             [Min(0f)]
             [SerializeField] private float minimumDistance;
 
             [Min(0f)]
             [SerializeField] private float speedMultiplier;
 
-            public float MinimumDistance => this.minimumDistance;
-            public float SpeedMultiplier => this.speedMultiplier;
+			public OrbitalSpeedBand(float minimumDistance, float speedMultiplier) : this() 
+            {
+                this.minimumDistance = minimumDistance;
+                this.speedMultiplier = speedMultiplier; 
+            }
+
+			public readonly float MinimumDistance => this.minimumDistance;
+            public readonly float SpeedMultiplier => this.speedMultiplier;
         }
 
         // Orbital speed multiplier for the default case when no bands are matched.
@@ -109,7 +109,12 @@ namespace SpaceRTS.Factories
             float selectedMultiplier = this.orbitalSpeedMultiplier;
             float selectedThreshold = 0f;
 
-            foreach (OrbitalSpeedBand band in this.orbitalSpeedBands)
+            if (this.orbitalSpeedBands == null || this.orbitalSpeedBands.Length == 0)
+            {
+                this.orbitalSpeedBands = GetDefaultSpeedBands();
+			}
+
+			foreach (OrbitalSpeedBand band in this.orbitalSpeedBands)
             {
                 if (orbitalDistance >= band.MinimumDistance &&
                     band.MinimumDistance >= selectedThreshold)
@@ -121,5 +126,25 @@ namespace SpaceRTS.Factories
 
             return selectedMultiplier;
         }
-    }
+
+        /// <summary>
+        /// Gets the default orbital speed bands used to scale movement speed by minimum distance thresholds.
+        /// </summary>
+        /// <returns>An array of <c>OrbitalSpeedBand</c> values ordered by increasing minimum distance,
+        /// each paired with its default speed multiplier.</returns>
+		private OrbitalSpeedBand[] GetDefaultSpeedBands()
+		{
+			// Minimum Distance: 0.5 - Speed Multiplier: 0.05
+			// Minimum Distance: 2.0 - Speed Multiplier: 0.15
+			// Minimum Distance: 5.0 - Speed Multiplier: 0.5
+			// Minimum Distance: 15.0 - Speed Multiplier: 1.0
+			return new OrbitalSpeedBand[]
+			{
+				new(0.5f, 0.05f),
+				new(2.0f, 0.15f),
+				new(5.0f, 0.5f),
+				new(15.0f, 1.0f)
+			};
+		}
+	}
 }

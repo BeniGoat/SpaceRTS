@@ -11,7 +11,7 @@ namespace SpaceRTS.Models
 	[RequireComponent(typeof(SelectableComponent))]
 	public class Ship : MonoBehaviour
 	{
-		[SerializeField] private float travelSpeed = 1f;
+		[SerializeField] private float travelSpeed = 5f;
 		[SerializeField] private Color pathLineColour = new Color(0.1f, 1, 0.1f, 0.5f);
 		[SerializeField] private float travelFacingYawOffsetDegrees = 0f;
 

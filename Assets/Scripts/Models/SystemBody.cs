@@ -149,7 +149,9 @@ namespace SpaceRTS.Models
 			// Calculate the angular velocity in radians per second and convert to degrees per second
 			float angularVelocityRadiansPerSecond = this.axialAngularMomentum / inertia;
 			float angularVelocityDegreesPerSecond = angularVelocityRadiansPerSecond * Mathf.Rad2Deg;
-			this.SetAngularVelocity(angularVelocityDegreesPerSecond);
+
+			// Bound the angular velocity to a reasonable range to avoid extreme rotation speeds
+			this.SetAngularVelocity(Mathf.Clamp(angularVelocityDegreesPerSecond, -360f, 360f));
 		}
 	}
 }

@@ -184,8 +184,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96486d9c5e4176c4bbd464057cdc5a82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  travelSpeed: 1
+  travelSpeed: 5
   pathLineColour: {r: 1, g: 1, b: 1, a: 0.5}
+  travelFacingYawOffsetDegrees: 0
 --- !u!114 &3244819268580961099
 MonoBehaviour:
   m_ObjectHideFlags: 0
