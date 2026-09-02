@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: -2070376503235272107}
   - component: {fileID: 7627058217373356258}
   - component: {fileID: 6097181097171975033}
+  - component: {fileID: 8136581055993677284}
   - component: {fileID: 3244819268580961099}
-  - component: {fileID: 5391611475650897187}
   - component: {fileID: 3529539874787281951}
   m_Layer: 0
   m_Name: Ship
@@ -185,8 +185,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   travelSpeed: 5
-  pathLineColour: {r: 1, g: 1, b: 1, a: 0.5}
   travelFacingYawOffsetDegrees: 0
+--- !u!114 &8136581055993677284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1191978471650237335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d2bbe26444e34459d5d2161ad6a46b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Models.Components.ShipPathFinder
+  pathLineColour: {r: 0.10196078, g: 0.7453357, b: 1, a: 0.5}
+  pathArcHeightFactor: 0.2
+  pathArcSegmentCount: 20
+  pathLineStartWidth: 0.003
+  pathLineMiddleWidth: 0.012
+  pathLineEndWidth: 0.002
 --- !u!114 &3244819268580961099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,18 +222,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &5391611475650897187
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1191978471650237335}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 527fa973d32359d488fe573aa9174cb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.MovementManager
 --- !u!114 &3529539874787281951
 MonoBehaviour:
   m_ObjectHideFlags: 0

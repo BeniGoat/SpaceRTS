@@ -1,22 +1,22 @@
 using SpaceRTS.Factories;
+using SpaceRTS.Models.Components;
 using SpaceRTS.Models.Interfaces;
 using UnityEngine;
 
 namespace SpaceRTS.Models
 {
 	/// <summary>
-	/// Represents a ship in the game, which can be selected, moved to a destination system body, and visualized with a path line.
+	/// Represents a ship in the game, which can be selected, moved to a destination system body, and visualized via a dedicated pathfinder component.
 	/// </summary>
-	[RequireComponent(typeof(LineRenderer))]
 	[RequireComponent(typeof(SelectableComponent))]
+	[RequireComponent(typeof(ShipPathFinder))]
 	public class Ship : MonoBehaviour
 	{
 		[SerializeField] private float travelSpeed = 5f;
-		[SerializeField] private Color pathLineColour = new Color(0.1f, 1, 0.1f, 0.5f);
 		[SerializeField] private float travelFacingYawOffsetDegrees = 0f;
 
 		private ISelectable selectable;
-		private LineRenderer path;
+		private ShipPathFinder pathFinder;
 		private SystemBody destinationBody;
 
 		/// <summary>
@@ -47,8 +47,8 @@ namespace SpaceRTS.Models
 		private void Awake()
 		{
 			this.selectable = this.GetComponent<SelectableComponent>();
+			this.pathFinder = this.GetComponent<ShipPathFinder>();
 			this.selectable.ConfigureSelectionOutline(1f);
-			this.ConfigureShipPathLine();
 		}
 
 		/// <summary>
@@ -88,42 +88,8 @@ namespace SpaceRTS.Models
 			this.destinationFactory = targetFactory;
 			this.destinationReservation = targetReservation;
 			this.HasArrived = false;
-			this.path.enabled = true;
-			this.path.forceRenderingOff = false;
+			this.pathFinder.ShowPath(target.transform);
 			return true;
-		}
-
-		/// <summary>
-		/// Initializes and configures the ship path LineRenderer with path display defaults, width, color gradient,
-		/// world-space rendering, and two positions.
-		/// </summary>
-		/// <remarks>Disables rendering initially, sets non-looping world-space behavior, applies a semi-transparent
-		/// start color based on the configured path line color, and sets a fixed thin line width.</remarks>
-		private void ConfigureShipPathLine()
-		{
-			this.path = this.GetComponent<LineRenderer>();
-			this.path.enabled = false;
-			this.path.forceRenderingOff = true;
-			this.path.useWorldSpace = true;
-			this.path.loop = false;
-			this.path.startWidth = 0.01f;
-			this.path.endWidth = 0.01f;
-			this.path.startColor = new Color(
-				this.pathLineColour.r,
-				this.pathLineColour.g,
-				this.pathLineColour.b,
-				this.pathLineColour.a * 0.5f);
-			this.path.endColor = this.pathLineColour;
-			this.path.positionCount = 2;
-		}
-
-		/// <summary>
-		/// Updates the path line endpoints to the current object position and the destination body's position.
-		/// </summary>
-		private void UpdatePathLine()
-		{
-			this.path.SetPosition(0, this.transform.position);
-			this.path.SetPosition(1, this.destinationBody.transform.position);
 		}
 
 		/// <summary>
@@ -152,8 +118,7 @@ namespace SpaceRTS.Models
 			this.destinationReservation = OrbitalSlotReservation.None;
 			this.destinationBody = null;
 			this.HasArrived = false;
-			this.path.enabled = false;
-			this.path.forceRenderingOff = true;
+			this.pathFinder.HidePath();
 			return true;
 		}
 
@@ -183,8 +148,6 @@ namespace SpaceRTS.Models
 					Quaternion.LookRotation(direction) *
 					Quaternion.Euler(0f, this.travelFacingYawOffsetDegrees, 0f);
 			}
-
-			this.UpdatePathLine();
 
 			if (Vector3.Distance(this.transform.position, targetPosition) <= this.destinationBody.OrbitalRadius)
 			{
