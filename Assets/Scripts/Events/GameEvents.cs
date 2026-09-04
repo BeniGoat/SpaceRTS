@@ -1,5 +1,6 @@
 ﻿using SpaceRTS.Managers.Enums;
 using SpaceRTS.Models.Interfaces;
+using SpaceRTS.Simulation;
 
 namespace SpaceRTS.Events
 {
@@ -26,5 +27,13 @@ namespace SpaceRTS.Events
 	public struct SpeedChangedEvent
 	{
 		public GameSpeed Speed;
+	}
+
+	/// <summary>
+	/// Raised when a simulation tick is processed.
+	/// </summary>
+	public struct SimulationTickEvent
+	{
+		public SimulationTick Tick;
 	}
 }

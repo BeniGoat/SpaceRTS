@@ -1,101 +1,84 @@
 ﻿using SpaceRTS.Events;
 using SpaceRTS.Managers.Enums;
 using SpaceRTS.Services;
+using SpaceRTS.Simulation;
 using UnityEngine;
 
 namespace SpaceRTS.Managers
 {
-    /// <summary>
-    /// Manages the game's speed, including pausing and adjusting the time scale.
-    /// It listens for game speed input events and updates the Time.timeScale accordingly. 
-    /// It also publishes speed change events to notify other systems of the current game speed.
-    /// </summary>
-    public class GameSpeedManager : MonoBehaviour
+	/// <summary>
+	/// Manages the game speed and pause state, delegating requests to the authoritative simulation clock.
+	/// </summary>
+	public class GameSpeedManager : MonoBehaviour
 	{
-		private const float TimeScaleDivisor = 5f;
-        private GameSpeed previousSpeed = GameSpeed.x1;
-        private bool isPaused;
+		private ISimulationClock simulationClock;
 
-        private void Awake()
+		private void Awake()
 		{
 			ServiceLocator.Register(this);
-        }
+		}
 
-        private void Start()
-        {
-            this.isPaused = true;
-            this.ApplyTimeScale(GameSpeed.Paused);
-        }
+		private void Start()
+		{
+			// Publish the initial speed state to ensure all systems are aware of the current game speed.
+			if (this.TryResolveClock())
+			{
+				EventBus.Publish(new SpeedChangedEvent { Speed = this.simulationClock.EffectiveSpeed });
+			}
+		}
 
-        private void OnEnable()
+		private void OnEnable()
 		{
 			EventBus.Subscribe<GameSpeedInputEvent>(this.HandleGameSpeedInput);
-        }
+		}
 
-        private void OnDisable()
+		private void OnDisable()
 		{
 			EventBus.Unsubscribe<GameSpeedInputEvent>(this.HandleGameSpeedInput);
-        }
+		}
 
-        /// <summary>
-        /// Sets the current game speed to the value specified by the event.
-        /// </summary>
-        /// <remarks>Delegates to SetGameSpeed to apply the requested speed.</remarks>
-        /// <param name="evt">Event providing the requested game speed.</param>
-        private void HandleGameSpeedInput(GameSpeedInputEvent evt)
-        {
-            this.SetGameSpeed(evt.RequestedSpeed);
-        }
-
-        /// <summary>
-        /// Sets the current game speed, updates Time.timeScale, publishes a SpeedChangedEvent, and logs the change.
-        /// </summary>
-        /// <remarks>If the supplied speed equals the current speed, no changes are made. Time.timeScale
-        /// is calculated from the GameSpeed value divided by TimeScaleDivisor. A SpeedChangedEvent is published via
-        /// EventBus and a diagnostic log entry is written.</remarks>
-        /// <param name="speed">Desired game speed; used to adjust the Time.timeScale accordingly.</param>
-        public void SetGameSpeed(GameSpeed speed)
+		/// <summary>
+		/// Sets the current game speed to the value specified by the event.
+		/// </summary>
+		private void HandleGameSpeedInput(GameSpeedInputEvent evt)
 		{
-            GameSpeed appliedSpeed;
+			this.SetGameSpeed(evt.RequestedSpeed);
+		}
 
-            // Check if the requested speed is pause request
-            if (speed == GameSpeed.Paused)
-            {
-                if (this.isPaused)
-                {
-                    // Currently paused, so resume to the previous speed
-                    appliedSpeed = this.previousSpeed;
-                    this.ApplyTimeScale(this.previousSpeed);
-                    this.isPaused = false;
-                }
-                else
-                {
-                    // Currently running, so pause
-                    appliedSpeed = GameSpeed.Paused;
-                    this.ApplyTimeScale(GameSpeed.Paused);
-                    this.isPaused = true;
-                }
-            }
-            else
-            {
-                // If the requested speed is not pause, store the previous speed and apply the new speed
-                this.previousSpeed = speed;
-                appliedSpeed = speed;
-                this.isPaused = false;
-                this.ApplyTimeScale(speed);
-            }
+		/// <summary>
+		/// Delegates speed and pause requests to the authoritative simulation clock.
+		/// </summary>
+		/// <param name="speed">Requested speed input.</param>
+		public void SetGameSpeed(GameSpeed speed)
+		{
+			// Ensure the simulation clock is resolved before attempting to change the speed.
+			if (!this.TryResolveClock())
+				return;
 
-            EventBus.Publish(new SpeedChangedEvent { Speed = appliedSpeed });
-            Debug.Log($"[GameSpeedManager] Game speed changed to: {appliedSpeed}, Time.timeScale = {Time.timeScale}");
-        }
+			// Apply the requested speed change and publish the resulting effective speed to all subscribers.
+			GameSpeed appliedSpeed = this.simulationClock.ApplySpeedRequest(speed);
+			EventBus.Publish(new SpeedChangedEvent { Speed = appliedSpeed });
+			Debug.Log($"[GameSpeedManager] Game speed changed to: {appliedSpeed}.");
+		}
 
-        /// <summary>
-        /// Applies the time scale based on the provided game speed.
-        /// </summary>
-        /// <param name="speed">The game speed to apply.</param>
-        private void ApplyTimeScale(GameSpeed speed)
-        {
-            Time.timeScale = (int)speed / TimeScaleDivisor;
-        }
-    }
+		/// <summary>
+		/// Ensures a simulation clock instance is available by using the existing reference or resolving it from the service
+		/// locator.
+		/// </summary>
+		/// <remarks>Logs an error when the simulation clock service is not registered.</remarks>
+		/// <returns>true if a simulation clock is available; otherwise, false when the clock service cannot be resolved.</returns>
+		private bool TryResolveClock()
+		{
+			if (this.simulationClock != null)
+				return true;
+
+			if (!ServiceLocator.TryGet(out this.simulationClock))
+			{
+				Debug.LogError("[GameSpeedManager] ISimulationClock is not registered. Ensure SimulationClockManager initializes first.");
+				return false;
+			}
+
+			return true;
+		}
+	}
 }

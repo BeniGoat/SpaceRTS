@@ -25,11 +25,8 @@ namespace SpaceRTS.Managers
 
 		private void OnDestroy()
 		{
-            // Reset time scale before clearing
-            Time.timeScale = 1f;
-
-            // Clear the service locator and event bus when the game manager is destroyed
-            ServiceLocator.Clear();
+			// Clear the service locator and event bus when the game manager is destroyed
+			ServiceLocator.Clear();
 			EventBus.Clear();
 		}
 	}
