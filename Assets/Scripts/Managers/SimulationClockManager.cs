@@ -27,7 +27,7 @@ namespace SpaceRTS.Managers
 		[Header("Simulation Time")]
 		[SerializeField] private long startingElapsedMinutes = 0;
 		[SerializeField, Min(1)] private long tickMinutes = 1;
-		[SerializeField, Min(0.0001f)] private float baseSimMinutesPerRealSecond = 1f;
+		[SerializeField, Min(1f)] private float baseSimMinutesPerRealSecond = 60f;
 		[SerializeField, Min(1)] private int maxTicksPerFrame = 256;
 		[SerializeField, Min(1f)] private float maxPendingSimulationMinutes = 1_000_000f;
 

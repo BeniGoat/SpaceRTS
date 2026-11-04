@@ -73,7 +73,7 @@ namespace SpaceRTS.Factories
 
             // Get the orbital speed based on the orbital distance
             float orbitalSpeed = this.CalculateOrbitalSpeed(orbitalDistance);
-            this.orbitRotator.SetRotationSpeed(orbitalSpeed, Vector3.up);
+            this.orbitRotator.SetBaseRotationSpeed(orbitalSpeed, Vector3.up);
 
             // Create the orbit line
             OrbitLine orbitLine = this.GetComponent<OrbitLine>();
@@ -134,16 +134,16 @@ namespace SpaceRTS.Factories
         /// each paired with its default speed multiplier.</returns>
 		private OrbitalSpeedBand[] GetDefaultSpeedBands()
 		{
-			// Minimum Distance: 0.5 - Speed Multiplier: 0.05
-			// Minimum Distance: 2.0 - Speed Multiplier: 0.15
-			// Minimum Distance: 5.0 - Speed Multiplier: 0.5
-			// Minimum Distance: 15.0 - Speed Multiplier: 1.0
+			// Minimum Distance: 0.5 - Speed Multiplier: 0.005
+			// Minimum Distance: 2.0 - Speed Multiplier: 0.015
+			// Minimum Distance: 5.0 - Speed Multiplier: 0.05
+			// Minimum Distance: 15.0 - Speed Multiplier: 0.1
 			return new OrbitalSpeedBand[]
 			{
-				new(0.5f, 0.05f),
-				new(2.0f, 0.15f),
-				new(5.0f, 0.5f),
-				new(15.0f, 1.0f)
+				new(0.5f, 0.005f),
+				new(2.0f, 0.015f),
+				new(5.0f, 0.05f),
+				new(15.0f, 0.1f)
 			};
 		}
 	}

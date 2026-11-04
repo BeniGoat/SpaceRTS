@@ -535,60 +535,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 896145891}
   m_CullTransparentMesh: 1
---- !u!1 &1136445253
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1136445255}
-  - component: {fileID: 1136445254}
-  m_Layer: 0
-  m_Name: Simulation
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1136445254
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136445253}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b0edb7d4c342b743aaf2dcb04c7a4f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpaceRTS.Managers.SimulationClockManager
-  epochYear: 2050
-  epochMonth: 1
-  epochDay: 1
-  epochHour: 0
-  epochMinute: 0
-  startingElapsedMinutes: 0
-  tickMinutes: 1
-  baseSimMinutesPerRealSecond: 1
-  maxTicksPerFrame: 256
-  maxPendingSimulationMinutes: 1000000
---- !u!4 &1136445255
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136445253}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1186823607
 GameObject:
   m_ObjectHideFlags: 0
@@ -815,6 +761,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4098724152590601971, guid: 70d9dab1e2a6fd842a277527b3b0cb83, type: 3}
+      propertyPath: baseSimMinutesPerRealSecond
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 4922365878597326265, guid: 70d9dab1e2a6fd842a277527b3b0cb83, type: 3}
       propertyPath: m_Name
       value: Managers
@@ -888,4 +838,3 @@ SceneRoots:
   - {fileID: 654546497}
   - {fileID: 382323715}
   - {fileID: 1280996012}
-  - {fileID: 1136445255}

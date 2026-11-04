@@ -104,7 +104,7 @@ namespace SpaceRTS.Models
 			if (this.rotator == null)
 				this.rotator = this.GetComponent<Rotator>();
 
-			this.rotator.SetRotationSpeed(degreesPerSecond, Vector3.up);
+			this.rotator.SetBaseRotationSpeed(degreesPerSecond, Vector3.up);
 		}
 
 		/// <summary>
