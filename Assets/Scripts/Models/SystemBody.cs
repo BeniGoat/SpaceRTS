@@ -64,11 +64,6 @@ namespace SpaceRTS.Models
 			}
 		}
 
-		/// <summary>
-		/// Gets the length of a day in seconds based on the body's angular velocity.
-		/// </summary>
-		public float LengthOfDayInSeconds { get; private set; }
-
 		private void Awake()
         {
             this.selectableComponent = this.GetComponent<SelectableComponent>();
@@ -101,8 +96,7 @@ namespace SpaceRTS.Models
 		}
 
 		/// <summary>
-		/// Sets the angular velocity for rotation around the up axis and
-		/// calculates the corresponding length of the day in seconds.
+		/// Sets the angular velocity for rotation around the up axis.
 		/// </summary>
 		/// <param name="degreesPerSecond">The angular velocity value in degrees per second.</param>
 		public void SetAngularVelocity(float degreesPerSecond)
@@ -111,16 +105,6 @@ namespace SpaceRTS.Models
 				this.rotator = this.GetComponent<Rotator>();
 
 			this.rotator.SetRotationSpeed(degreesPerSecond, Vector3.up);
-
-			// Set the length of the day in seconds based on the angular velocity.
-			if (Mathf.Approximately(degreesPerSecond, 0f))
-			{
-				this.LengthOfDayInSeconds = float.PositiveInfinity; // Infinite length of day for zero rotation speed
-			}
-			else
-			{
-				this.LengthOfDayInSeconds = 360f / Mathf.Abs(degreesPerSecond);
-			}
 		}
 
 		/// <summary>
@@ -157,9 +141,8 @@ namespace SpaceRTS.Models
 			float inertia = 0.4f * this.Mass * radius * radius;
 			if (inertia <= Mathf.Epsilon)
 			{
-				// If the moment of inertia is zero or negative, the body is effectively
-				// tidally locked, so cancel any independent axial self-spin.
-				this.ConfigureTidalLock();
+				// If the moment of inertia is zero or negative, cancel any independent axial self-spin.
+				this.SetAngularVelocity(0f);
 				return;
 			}
 
