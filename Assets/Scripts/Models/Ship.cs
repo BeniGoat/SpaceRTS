@@ -123,22 +123,22 @@ namespace SpaceRTS.Models
 		}
 
 		/// <summary>
-		/// Advances travel toward the current destination body, updates orientation and path visualization, and marks arrival
-		/// when within the destination orbital radius.
+		/// Processes the ship's travel for a given simulation tick. Advances travel toward the current destination body,
+		/// updates orientation and path visualization, and marks arrival when within the destination orbital radius.
 		/// </summary>
 		/// <remarks>Returns immediately when no destination body is set.</remarks>
-		/// <param name="deltaTime">Elapsed time since the previous update, in seconds.</param>
-		internal void ProcessTravel(float deltaTime)
+		/// <param name="tickStepSeconds">The time step for this simulation tick, in seconds.</param>
+		internal void ProcessTravelTick(float tickStepSeconds)
 		{
 			if (this.destinationBody == null)			
 				return;
 
-			// Move the ship towards the destination body at the specified travel speed, scaled by deltaTime.
+			// Move the ship towards the destination body at the specified travel speed, scaled by the tick step seconds.
 			Vector3 targetPosition = this.destinationBody.transform.position;
 			this.transform.position = Vector3.MoveTowards(
 				this.transform.position,
 				targetPosition,
-				this.travelSpeed * deltaTime);
+				this.travelSpeed * tickStepSeconds);
 
 			// Update the ship's rotation to face the direction of travel, applying any yaw offset for visual orientation.
 			Vector3 direction = targetPosition - this.transform.position;
